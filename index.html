@@ -2166,15 +2166,20 @@ function updateYtdCharts() {
 
 async function loadDashboardData() {
   try {
+    console.log('Iniciando carga de dashboard-data.json...');
+
     const response = await fetch(`./dashboard-data.json?t=${Date.now()}`, {
       cache: 'no-store'
     });
+
+    console.log('Status fetch JSON:', response.status, response.statusText);
 
     if (!response.ok) {
       throw new Error(`No se pudo cargar dashboard-data.json (${response.status})`);
     }
 
     const data = await response.json();
+    console.log('JSON cargado correctamente:', data);
 
     monthlyData = data.monthlyData || {};
     ytdMonthlySummary = data.ytdMonthlySummary || {};
@@ -2182,6 +2187,8 @@ async function loadDashboardData() {
     irradiationData = data.irradiation || {};
     alarmsData = data.alarms || [];
     metaData = data.meta || {};
+
+    console.log('Meses detectados:', Object.keys(monthlyData));
 
     Object.keys(monthlyData).forEach(monthKey => {
       const irrMonth = irradiationData[monthKey] || {};
@@ -2216,12 +2223,14 @@ async function loadDashboardData() {
     initMonthSelector();
     initDashboard();
 
+    console.log('Dashboard inicializado correctamente.');
+
   } catch (error) {
     console.error('Error cargando dashboard:', error);
-    alert('No se pudo cargar dashboard-data.json. Revisa que el archivo exista en la misma carpeta que index.html');
+    alert('Error cargando dashboard-data.json. Abre F12 > Console y revisa el detalle.');
   }
 }
-
+  
 function initMonthSelector() {
   const selector = document.getElementById('monthSelector');
   if (!selector) return;
