@@ -618,7 +618,7 @@
     <div class="chart-header">
       <div>
         <div class="chart-title">PV FP4 (Chile) — Energía Mensual: Contractual vs Real (kWh)</div>
-        <div class="chart-subtitle">Mayo 2025 → 11 Marzo 2026 · Incluye YTD parcial</div>
+        <div class="chart-subtitle" id="ytdSubtitleFp4">Mayo 2025 → Marzo 2026</div>
       </div>
       <div class="chart-tags">
         <span class="tag leaf">Real</span>
@@ -636,7 +636,7 @@
       <div class="chart-header">
         <div>
           <div class="chart-title">PV CAUCEDO — Mensual COM vs REAL</div>
-          <div class="chart-subtitle">Mayo 2025 → 11 Marzo 2026</div>
+          <div class="chart-subtitle" id="ytdSubtitleCau">Mayo 2025 → Marzo 2026/div>
         </div>
         <div class="chart-tags">
           <span class="tag sky">Real</span>
@@ -652,7 +652,7 @@
       <div class="chart-header">
         <div>
           <div class="chart-title">PV DURAN — Mensual COM vs REAL</div>
-          <div class="chart-subtitle">Agosto 2025 → 11 Marzo 2026</div>
+          <div class="chart-subtitle" id="ytdSubtitleDur">Agosto 2025 → Marzo 2026</div>
         </div>
         <div class="chart-tags">
           <span class="tag gold">Real</span>
@@ -710,7 +710,31 @@ let alarmsData = [];
 let metaData = {};
 let selectedMonth = '';
 
+function updateYtdSubtitles() {
+  const months = Object.keys(monthlyData || {}).sort(compareMonthKeys);
+  if (!months.length) return;
 
+  const lastMonth = months[months.length - 1];
+  const daysCount = monthlyData[lastMonth]?.days?.length || 0;
+
+  const [year, month] = lastMonth.split('-').map(Number);
+  const monthNameFull = [
+    'Enero','Febrero','Marzo','Abril','Mayo','Junio',
+    'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'
+  ][month - 1];
+
+  const endLabel = daysCount > 0
+    ? `${daysCount} ${monthNameFull} ${year}`
+    : `${monthNameFull} ${year}`;
+
+  const fp4 = document.getElementById('ytdSubtitleFp4');
+  const cau = document.getElementById('ytdSubtitleCau');
+  const dur = document.getElementById('ytdSubtitleDur');
+
+  if (fp4) fp4.textContent = `Mayo 2025 → ${endLabel} · Incluye YTD parcial`;
+  if (cau) cau.textContent = `Mayo 2025 → ${endLabel}`;
+  if (dur) dur.textContent = `Agosto 2025 → ${endLabel}`;
+}
 
 // codigo nuevo para tabla de YTD
 const YTD_PLANTS = {
@@ -2115,56 +2139,35 @@ function updateAlarmTable() {
 }
 
 function buildYtdChartData() {
-  const result = {};
+  const monthlyTotals = buildYtdMonthlyTotals();
 
-  const summaryMonths = Object.keys(ytdMonthlySummary || {}).sort(compareMonthKeys);
-  const currentMonths = Object.keys(monthlyData || {}).sort(compareMonthKeys);
-  const allMonths = [...new Set([...summaryMonths, ...currentMonths])].sort(compareMonthKeys);
+  const fp4Months = getPlantMonthsForYtd(monthlyTotals, 'fp4');
+  const cauMonths = getPlantMonthsForYtd(monthlyTotals, 'caucedo');
+  const durMonths = getPlantMonthsForYtd(monthlyTotals, 'duran');
 
-  const now = new Date();
-  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-
-  allMonths.forEach(monthKey => {
-    result[monthKey] = {};
-
-    Object.keys(YTD_PLANTS).forEach(plantKey => {
-      let com = 0;
-      let real = 0;
-
-      const hasMonthlyData =
-        monthlyData?.[monthKey]?.contractual?.[plantKey] ||
-        monthlyData?.[monthKey]?.generation?.[plantKey];
-
-      const hasSummaryData = ytdMonthlySummary?.[monthKey]?.[plantKey];
-
-      // Para el mes actual, manda monthlyData
-      if (monthKey === currentMonthKey && hasMonthlyData) {
-        com = ytdSum(monthlyData[monthKey]?.contractual?.[plantKey] || []);
-        real = ytdSum(monthlyData[monthKey]?.generation?.[plantKey] || []);
-      }
-      // Para meses cerrados, usa el resumen
-      else if (hasSummaryData) {
-        com = Number(ytdMonthlySummary[monthKey][plantKey].com || 0);
-        real = Number(ytdMonthlySummary[monthKey][plantKey].real || 0);
-      }
-      // Respaldo
-      else if (hasMonthlyData) {
-        com = ytdSum(monthlyData[monthKey]?.contractual?.[plantKey] || []);
-        real = ytdSum(monthlyData[monthKey]?.generation?.[plantKey] || []);
-      }
-      if (monthKey === currentMonthKey && plantKey === 'caucedo') {
-        console.log('YTD actual desde monthlyData:', monthKey, plantKey, com, real);
-      }
-      result[monthKey][plantKey] = {
-        com,
-        real,
-        diff: real - com,
-        diffPct: com > 0 ? ((real - com) / com) * 100 : 0
-      };
-    });
-  });
-
-  return result;
+  return {
+    fp4: {
+      labels: fp4Months.map(m => monthLabelFromKey(m, isPartialMonth(m))),
+      com: fp4Months.map(m => monthlyTotals[m].fp4.com),
+      real: fp4Months.map(m => monthlyTotals[m].fp4.real)
+    },
+    cau: {
+      labels: cauMonths.map(m => monthLabelFromKey(m, isPartialMonth(m))),
+      com: cauMonths.map(m => monthlyTotals[m].caucedo.com),
+      real: cauMonths.map(m => monthlyTotals[m].caucedo.real)
+    },
+    dur: {
+      labels: durMonths.map(m => monthLabelFromKey(m, isPartialMonth(m))),
+      com: durMonths.map(m => monthlyTotals[m].duran.com),
+      real: durMonths.map(m => monthlyTotals[m].duran.real)
+    },
+    diffPct: {
+      labels: Object.keys(monthlyTotals).sort(compareMonthKeys).map(m => monthLabelFromKey(m, isPartialMonth(m))),
+      duran: Object.keys(monthlyTotals).sort(compareMonthKeys).map(m => monthlyTotals[m].duran?.diffPct ?? null),
+      caucedo: Object.keys(monthlyTotals).sort(compareMonthKeys).map(m => monthlyTotals[m].caucedo?.diffPct ?? null),
+      fp4: Object.keys(monthlyTotals).sort(compareMonthKeys).map(m => monthlyTotals[m].fp4?.diffPct ?? null)
+    }
+  };
 }
 
 function updateYtdCharts() {
@@ -2255,7 +2258,7 @@ async function loadDashboardData() {
     });
 
     initMonthSelector();
-
+    updateYtdSubtitles();
     try {
       initDashboard();
     } catch (renderError) {
