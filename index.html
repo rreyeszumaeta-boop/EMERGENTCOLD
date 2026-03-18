@@ -1,0 +1,2391 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard PV - EmergentCold | YTD 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --bg2: #eef2f7;
+
+    --card: #ffffff;
+    --card2: #f5f7fb;
+
+    --border: #d6dee8;
+    --border2: #c7d2e2;
+
+    --accent1: #f59e0b;
+    --accent2: #38bdf8;
+    --accent3: #22c55e;
+    --accent4: #84cc16;
+
+    --text: #1f2937;
+    --muted: #6b7280;
+
+    --green: #16a34a;
+    --red: #dc2626;
+    --yellow: #d97706;
+
+    --solar: #b45309;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background:#eef2f7;
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, #ffffff 0%, #f4f7fb 60%, #eef2f7 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .logo {
+    width: 50px; height: 50px;
+    background: linear-gradient(135deg, #f59e0b, #fde68a);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 0 20px rgba(245,158,11,0.4);
+  }
+  header h1 { font-size: 1.35rem; font-weight: 700; letter-spacing: 0.5px; color: var(--solar); }
+  header p { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+  .badge {
+    background: rgba(245,158,11,0.15);
+    border: 1px solid rgba(245,158,11,0.5);
+    color: var(--accent1);
+    padding: 5px 16px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .badge-green {
+    background: rgba(74,222,128,0.12);
+    border: 1px solid rgba(74,222,128,0.4);
+    color: var(--accent3);
+    padding: 5px 16px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-left: 6px;
+  }
+  .header-badges { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+
+  /* MAIN */
+  main { padding: 24px 28px; max-width: 1600px; margin: 0 auto; }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 14px;
+    margin-top: 32px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  /* KPI CARDS */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 4px;
+  }
+  .kpi-card {
+    background: var(--card);
+    border: 1px solid #dbe4ee;
+    border-radius: 20px;
+    padding: 22px 24px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 8px 24px rgba(15,23,42,0.06);
+  }
+  .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(15,23,42,0.); }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .kpi-card.gold::before   { background: linear-gradient(90deg, #f59e0b, #fde68a); }
+  .kpi-card.sky::before    { background: linear-gradient(90deg, #38bdf8, #7dd3fc); }
+  .kpi-card.leaf::before   { background: linear-gradient(90deg, #4ade80, #86efac); }
+  .kpi-card.lime::before   { background: linear-gradient(90deg, #a3e635, #d9f99d); }
+  .kpi-card::after {
+    content: '';
+    position: absolute;
+    bottom: -30px; right: -20px;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    opacity: 0.04;
+  }
+  .kpi-card.gold::after   { background: #f59e0b; }
+  .kpi-card.sky::after    { background: #38bdf8; }
+  .kpi-card.leaf::after   { background: #4ade80; }
+  .kpi-card.lime::after   { background: #a3e635; }
+  .kpi-icon { font-size: 1.7rem; margin-bottom: 10px; }
+  .kpi-label { font-size: 0.73rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .kpi-value { font-size: 1.75rem; font-weight: 700; margin: 4px 0 6px; color: var(--solar); }
+  .kpi-sub { font-size: 0.75rem; color: var(--muted); }
+  .kpi-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    margin-top: 6px;
+  }
+  .kpi-badge.up      { background: rgba(74,222,128,0.15); color: var(--green); }
+  .kpi-badge.down    { background: rgba(248,113,113,0.15); color: var(--red); }
+  .kpi-badge.neutral { background: rgba(251,191,36,0.15); color: var(--yellow); }
+
+  /* CHART GRID */
+  .chart-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    align-items: start;
+  }
+  .chart-grid-3 {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 18px;
+    align-items: start;
+  }
+  .chart-grid-3col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 18px;
+    align-items: start;
+  }
+  @media (max-width: 1100px) {
+    .chart-grid-3col { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 900px) {
+    .chart-grid-2, .chart-grid-3, .chart-grid-3col { grid-template-columns: 1fr; }
+  }
+
+  .chart-card {
+    background: var(--card);
+    border: 1px solid #dbe4ee;
+    border-radius: 20px;
+    padding: 22px 24px;
+    transition: box-shadow 0.2s;
+    box-shadow: 0 8px 24px rgba(15,23,42,0.06);
+    align-self: start;
+  }
+  .chart-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.4); }
+  .chart-card.full { grid-column: 1 / -1; }
+
+  .chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .chart-title { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+  .chart-subtitle { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+  .chart-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag {
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+  .tag.gold   { background: rgba(245,158,11,0.15);  color: var(--accent1); }
+  .tag.sky    { background: rgba(56,189,248,0.15);  color: var(--accent2); }
+  .tag.leaf   { background: rgba(74,222,128,0.15);  color: var(--accent3); }
+  .tag.lime   { background: rgba(163,230,53,0.15);  color: var(--accent4); }
+  .tag.red    { background: rgba(248,113,113,0.15); color: var(--red); }
+
+  .chart-wrap { position: relative; height: 260px; }
+  .chart-wrap.tall { height: 330px; }
+  .chart-wrap.sm { height: 200px; }
+  .chart-wrap.xl { height: 380px; }
+
+  /* PLANT SUMMARY TABLE */
+  .plant-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .plant-table thead tr { border-bottom: 1px solid var(--border); }
+  .plant-table th { color: var(--muted); font-weight: 600; text-align: left; padding: 10px 12px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; }
+  .plant-table td { padding: 11px 12px; border-bottom: 1px solid rgba(30,92,58,0.4); }
+  .plant-table tbody tr:hover { background: rgba(74,222,128,0.04); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+  .plant-table .total-row { background: rgba(74,222,128,0.06); font-weight: 700; }
+
+  /* MONTHLY TABLE */
+  .monthly-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; overflow-x: auto; }
+  .monthly-table th { color: var(--muted); font-weight: 600; padding: 10px 10px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .monthly-table td { padding: 9px 10px; border-bottom: 1px solid rgba(30,92,58,0.3); white-space: nowrap; }
+  .monthly-table tbody tr:hover { background: rgba(74,222,128,0.04); }
+  .monthly-table .ytd-row { background: rgba(245,158,11,0.08); border-top: 1px solid rgba(245,158,11,0.3); font-weight: 700; }
+  .table-scroll { overflow-x: auto; border-radius: 8px; }
+  .positive { color: var(--green) !important; }
+  .negative { color: var(--red) !important; }
+  .neutral-text { color: var(--muted) !important; }
+
+  /* IRRADIATION BARS */
+  .irr-row { margin-bottom: 16px; }
+  .irr-label { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 6px; }
+  .irr-bar-bg { background: rgba(255,255,255,0.05); border-radius: 6px; height: 10px; }
+  .irr-bar-fill { height: 10px; border-radius: 6px; position: relative; }
+  .irr-bar-target { position: absolute; top: -3px; width: 3px; height: 16px; background: rgba(255,255,255,0.5); border-radius: 2px; }
+
+  /* CUMPLIMIENTO GAUGE */
+  .gauge-grid { display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 12px; padding: 8px 0; }
+  .gauge-item { text-align: center; }
+  .gauge-circle {
+    width: 115px; height: 115px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+    font-weight: 700;
+    position: relative;
+    margin: 0 auto 10px;
+  }
+  .gauge-label { font-size: 0.75rem; color: var(--muted); }
+  .gauge-plant { font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 22px;
+    color: var(--muted);
+    font-size: 0.75rem;
+    border-top: 1px solid var(--border);
+    margin-top: 36px;
+    background: #f4f7fb;
+  }
+
+  /* FILTER BAR */
+  .filter-bar {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 20px;
+    align-items: center;
+  }
+  .filter-btn {
+    padding: 6px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 500;
+  }
+  .filter-btn:hover { background: var(--card2); border-color: var(--border2); }
+  .filter-btn.active { border-color: var(--accent1); background: rgba(245,158,11,0.12); color: var(--accent1); }
+  .filter-label { font-size: 0.78rem; color: var(--muted); margin-right: 4px; }
+  /* CODIGO AGREGADOOO*/
+  .month-select {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-size: 0.78rem;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .month-select:hover {
+    background: var(--card2);
+    border-color: var(--border2);
+  }
+  .month-select:focus {
+    outline: none;
+    border-color: var(--accent1);
+  }
+  /* AQUI TERMINA EL CODIGO AGREGADO*/
+
+  /* STAT MINI CARDS */
+  .mini-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .mini-stat {
+    background: rgba(74,222,128,0.05);
+    border: 1px solid rgba(30,92,58,0.6);
+    border-radius: 10px;
+    padding: 12px 14px;
+    text-align: center;
+  }
+  .mini-stat .ms-val { font-size: 1.2rem; font-weight: 700; color: var(--solar); }
+  .mini-stat .ms-label { font-size: 0.7rem; color: var(--muted); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.8px; }
+
+  /* PROGRESS BAR INLINE */
+  .prog-bar-wrap { display: flex; align-items: center; gap: 8px; }
+  .prog-bar-bg { flex: 1; background: rgba(255,255,255,0.06); border-radius: 4px; height: 6px; }
+  .prog-bar-fill { height: 6px; border-radius: 4px; }
+  .prog-pct { font-size: 0.75rem; font-weight: 700; min-width: 42px; text-align: right; }
+
+  /* DIVIDER */
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 8px 0; }
+
+  /* GLOW EFFECTS */
+  .glow-gold { box-shadow: 0 0 16px rgba(245,158,11,0.2); }
+  .glow-leaf { box-shadow: 0 0 16px rgba(74,222,128,0.2); }
+  .glow-sky  { box-shadow: 0 0 16px rgba(56,189,248,0.2); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <div class="logo">☀️</div>
+    <div>
+      <h1>Centro de Control PV — EmergentCold</h1>
+      <p>Monitoreo de Generación · DURAN · CAUCEDO · FP4 (Chile)</p>
+    </div>
+  </div>
+  <div class="header-badges">
+    <div class="badge" id="headerMonthBadge">📅 Febrero 2026</div>
+    <div class="badge-green" >🌱 YTD May 2025 → Mar 2026</div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ─── KPI MENSUAL ─── -->
+  <div class="section-title">⚡ Resumen KPIs POR MES </div>
+  <div class="kpi-grid">
+
+    <div class="kpi-card gold">
+      <div class="kpi-icon">⚡</div>
+      <div class="kpi-label">Energía Total Generada</div>
+      <div class="kpi-value" id="kpiTotalEnergy">0.0</div>
+      <div class="kpi-sub" id="kpiTotalEnergySub">kWh — 3 plantas combinadas</div>
+    </div>
+
+    <div class="kpi-card sky">
+      <div class="kpi-icon">🏭</div>
+      <div class="kpi-label">Capacidad Instalada Total</div>
+      <div class="kpi-value" id="kpiCapacity">0.0</div>
+      <div class="kpi-sub">kWp (DURAN + CAUCEDO + FP4)</div>
+    </div>
+
+    <div class="kpi-card gold">
+      <div class="kpi-icon">☀️</div>
+      <div class="kpi-label">Irradiación PV DURAN</div>
+      <div class="kpi-value" id="kpiIrrDurReal">0.0</div>
+      <div class="kpi-sub" id="kpiIrrDurSub">kWh/m² real vs 0.0 contractual</div>
+      <span class="kpi-badge neutral" id="kpiIrrDurBadge">N/D</span>
+    </div>
+
+    <div class="kpi-card sky">
+      <div class="kpi-icon">🌤️</div>
+      <div class="kpi-label">Irradiación PV FP4</div>
+      <div class="kpi-value" id="kpiIrrFp4Real">0.0</div>
+      <div class="kpi-sub" id="kpiIrrFp4Sub">kWh/m² real vs 0.0 contractual</div>
+      <span class="kpi-badge neutral" id="kpiIrrFp4Badge">N/D</span>
+    </div>
+
+  </div>
+
+  <!-- ─── FILTRO PLANTAS ─── -->
+  <div class="section-title" id="monthlySectionTitle">📈 Generación Diaria — Febrero 2026</div>
+  <div class="filter-bar">
+    <span class="filter-label">Mes:</span>
+    <select id="monthSelector"></select>
+
+    <span class="filter-label" style="margin-left:10px;">Ver:</span>
+    <button class="filter-btn active" onclick="filterChart('all', this)">Todas las plantas</button>
+    <button class="filter-btn" onclick="filterChart('duran', this)">PV DURAN</button>
+    <button class="filter-btn" onclick="filterChart('caucedo', this)">PV CAUCEDO</button>
+    <button class="filter-btn" onclick="filterChart('fp4', this)">PV FP4</button>
+  </div>
+
+  <!-- ─── GRÁFICO GENERACIÓN DIARIA ─── -->
+  <div class="chart-card" style="margin-bottom:18px;">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">Generación Diaria por Planta (kWh)</div>
+        <div class="chart-subtitle" id="dailyChartSubtitle">28 días · Febrero 2026</div>
+      </div>
+      <div class="chart-tags">
+        <span class="tag gold">PV DURAN</span>
+        <span class="tag sky">PV CAUCEDO</span>
+        <span class="tag leaf">PV FP4</span>
+      </div>
+    </div>
+    <div class="chart-wrap tall">
+      <canvas id="chartDiario"></canvas>
+    </div>
+  </div>
+  <!-- ─── CUADRO ALARMA ─── -->
+  <div class="section-title" id="alarmSectionTitle">🚨 Pérdidas de Energía por Alarmas — Febrero 2026</div>
+  <div class="chart-grid-2" style="margin-bottom:18px;">
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Pérdida estimada por planta (kWh)</div>
+          <div class="chart-subtitle" id="alarmChartSubtitle">Alarmas detectadas en SolisCloud</div>
+        </div>
+        <div class="chart-tags">
+          <span class="tag red">Alarmas</span>
+        </div>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="chartAlarmLoss"></canvas>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">Resumen de alarmas</div>
+        <div class="chart-subtitle">Horas afectadas y pérdida estimada</div>
+      </div>
+    </div>
+
+    <div class="mini-stat-grid" style="margin-top:0; margin-bottom:16px;">
+      <div class="mini-stat">
+        <div class="ms-val" id="alarmTotalKwh">0</div>
+        <div class="ms-label">kWh perdidos</div>
+      </div>
+      <div class="mini-stat">
+        <div class="ms-val" id="alarmEvents">0</div>
+        <div class="ms-label">Eventos</div>
+      </div>
+      <div class="mini-stat">
+        <div class="ms-val" id="alarmHours">0</div>
+        <div class="ms-label">Horas afectadas</div>
+      </div>
+    </div>
+
+    <div class="table-scroll">
+      <table class="monthly-table">
+        <thead>
+          <tr>
+            <th>Planta</th>
+            <th>Alarma</th>
+            <th>Horas</th>
+            <th>Pérdida (kWh)</th>
+          </tr>
+        </thead>
+        <tbody id="alarmTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+
+  <!-- ─── GENERACION ACUMULADA + PIE ─── -->
+  <div class="chart-grid-3" style="margin-bottom:18px;">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Generación Acumulada (kWh)</div>
+          <div class="chart-subtitle" id="accumChartSubtitle">Suma acumulada día a día · Febrero 2026</div>
+        </div>
+        <div class="chart-tags">
+          <span class="tag gold">DURAN</span>
+          <span class="tag sky">CAUCEDO</span>
+          <span class="tag leaf">FP4</span>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="chartAcumulado"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Participación por Planta</div>
+          <div class="chart-subtitle" id="pieChartSubtitle">% del total generado</div>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="chartPie"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── CUMPLIMIENTO CONTRACTUAL POR MES  ─── -->
+  <div class="section-title" id="contractSectionTitle" >🎯 Cumplimiento Contractual — Febrero 2026</div>
+  <div class="chart-grid-2" style="margin-bottom:18px;">
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Energía Real vs Contractual (kWh)</div>
+          <div class="chart-subtitle" id="contractBarSubtitle" >Comparación por planta · Febrero 2026</div>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="chartContractual"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">% Cumplimiento por Planta</div>
+          <div class="chart-subtitle">Porcentaje respecto al contrato</div>
+        </div>
+      </div>
+      <div class="gauge-grid" id="contractGaugeGrid" style="padding: 20px 0;"></div>
+    </div>
+  </div>   
+  <!-- ─── IRRADIACIÓN ─── -->
+  <div class="section-title">🌞 Irradiación Solar — Real vs Contractual</div>
+  <div class="chart-grid-2" style="margin-bottom:18px;">
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Irradiación Real vs Contractual (kWh/m²)</div>
+          <div class="chart-subtitle">PV DURAN y PV FP4 · PV CAUCEDO sin dato</div>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="chartIrrBar"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Déficit de Irradiación</div>
+          <div class="chart-subtitle">kWh/m² faltante respecto al contrato</div>
+        </div>
+      </div>
+      <div style="padding: 16px 0;" id="irrSummaryBox"></div>
+    </div>
+  </div>
+
+<!-- ─── TABLA RESUMEN DINÁMICA ─── -->
+<div class="section-title" id="plantSummaryTitle">📋 Tabla Resumen por Planta — Febrero 2026</div>
+<div class="chart-card" style="margin-bottom:18px;">
+  <table class="plant-table">
+    <thead>
+      <tr>
+        <th>Planta</th>
+        <th>Capacidad (kWp)</th>
+        <th>Energía Real (kWh)</th>
+        <th>Energía Contractual (kWh)</th>
+        <th>Cumplimiento</th>
+        <th>Irrad. Real (kWh/m²)</th>
+        <th>Irrad. Contrato (kWh/m²)</th>
+        <th>Var. Irrad.</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody id="plantSummaryBody"></tbody>
+  </table>
+</div>
+  
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- ─── SECCIÓN YTD ─── -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  
+    <!-- ─── GRÁFICO TENDENCIA MENSUAL YTD ─── -->
+  <div class="section-title">📅 Tendencia Mensual YTD — COM vs REAL por Planta</div>
+
+  <!-- FP4 (Chile) Monthly -->
+  <div class="chart-card" style="margin-bottom:18px;">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">PV FP4 (Chile) — Energía Mensual: Contractual vs Real (kWh)</div>
+        <div class="chart-subtitle">Mayo 2025 → 11 Marzo 2026 · Incluye YTD parcial</div>
+      </div>
+      <div class="chart-tags">
+        <span class="tag leaf">Real</span>
+        <span class="tag lime">Contractual</span>
+      </div>
+    </div>
+    <div class="chart-wrap tall">
+      <canvas id="chartYTD_FP4"></canvas>
+    </div>
+  </div>
+
+  <!-- CAUCEDO + DURAN en 2 columnas -->
+  <div class="chart-grid-2" style="margin-bottom:18px;">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">PV CAUCEDO — Mensual COM vs REAL</div>
+          <div class="chart-subtitle">Mayo 2025 → 11 Marzo 2026</div>
+        </div>
+        <div class="chart-tags">
+          <span class="tag sky">Real</span>
+          <span class="tag lime">Contractual</span>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="chartYTD_CAU"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">PV DURAN — Mensual COM vs REAL</div>
+          <div class="chart-subtitle">Agosto 2025 → 11 Marzo 2026</div>
+        </div>
+        <div class="chart-tags">
+          <span class="tag gold">Real</span>
+          <span class="tag lime">Contractual</span>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="chartYTD_DUR"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── GRÁFICO DIFERENCIA % MENSUAL ─── -->
+  <div class="section-title">📉 Variación Porcentual Mensual vs Contrato (%)</div>
+  <div class="chart-card" style="margin-bottom:18px;">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">% Diferencia Real vs Contractual por Planta y Mes</div>
+        <div class="chart-subtitle">Valores positivos = sobre contrato · Negativos = bajo contrato</div>
+      </div>
+      <div class="chart-tags">
+        <span class="tag gold">DURAN</span>
+        <span class="tag sky">CAUCEDO</span>
+        <span class="tag leaf">FP4</span>
+      </div>
+    </div>
+    <div class="chart-wrap tall">
+      <canvas id="chartDifPct"></canvas>
+    </div>
+  </div>
+
+  <!-- ─── TABLA MENSUAL DETALLADA ─── -->
+  <div class="section-title">📊 Tabla Detallada YTD por Planta y Mes</div>
+  <div id="monthlyTablesContainer"></div>
+
+  
+  <!-- ─── PROGRESO YTD VISUAL ─── -->
+  <div class="section-title">📏 Progreso de Cumplimiento Contractual YTD</div>
+  <div id="ytdProgressContainer"></div>
+
+</main>
+
+<footer>
+  🌱 Centro de Control — EmergentCold &nbsp;|&nbsp; Dashboard PV Generación Solar &nbsp;|&nbsp; Datos mensuales y YTD &nbsp;|&nbsp; Powered by Orange Energy
+</footer>
+
+<script>
+// ─── DATOS MENSUALES 2026, AQUI SE MODIFICA LA GENERACION ───
+/*PARTE MODIFICADAAAAA*/
+
+let monthlyData = {};
+let ytdMonthlySummary = {};
+let irradiationData = {};
+let alarmsData = [];
+let metaData = {};
+let selectedMonth = '';
+
+
+
+// codigo nuevo para tabla de YTD
+const YTD_PLANTS = {
+  caucedo: {
+    name: "PV CAUCEDO",
+    color: "var(--accent2)",
+    start: "2025-05"
+  },
+  fp4: {
+    name: "PV FP4 (Chile)",
+    color: "var(--accent3)",
+    start: "2025-05"
+  },
+  duran: {
+    name: "PV DURAN",
+    color: "var(--accent1)",
+    start: "2025-08"
+  }
+};
+
+const MONTH_NAMES_SHORT = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+
+function ytdSum(arr) {
+  return (arr || []).reduce((acc, val) => acc + (Number(val) || 0), 0);
+}
+
+function ytdFormatNumber(num, decimals = 0) {
+  return Number(num || 0).toLocaleString("en-US", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  });
+}
+
+function ytdFormatSignedNumber(num, decimals = 0) {
+  const n = Number(num) || 0;
+  const sign = n > 0 ? "+" : n < 0 ? "−" : "";
+  return sign + ytdFormatNumber(Math.abs(n), decimals);
+}
+
+function ytdFormatSignedPercent(num, decimals = 1) {
+  const n = Number(num) || 0;
+  const sign = n > 0 ? "+" : n < 0 ? "−" : "";
+  return sign + Math.abs(n).toFixed(decimals) + "%";
+}
+
+function monthLabelFromKey(monthKey, partial = false) {
+  const [year, month] = monthKey.split("-").map(Number);
+  return `${MONTH_NAMES_SHORT[month - 1]}-${String(year).slice(2)}${partial ? "*" : ""}`;
+}
+
+function compareMonthKeys(a, b) {
+  return a.localeCompare(b);
+}
+
+function diffClass(value) {
+  if (value > 0) return "positive";
+  if (value < 0) return "negative";
+  return "neutral-text";
+}
+
+function isPartialMonth(monthKey) {
+  const months = Object.keys(monthlyData || {}).sort(compareMonthKeys);
+  const latestMonth = months.length ? months[months.length - 1] : null;
+  return monthKey === latestMonth;
+}
+
+function buildYtdMonthlyTotals() {
+  const result = {};
+
+  const summaryMonths = Object.keys(ytdMonthlySummary || {}).sort(compareMonthKeys);
+  const currentMonths = Object.keys(monthlyData || {}).sort(compareMonthKeys);
+  const allMonths = [...new Set([...summaryMonths, ...currentMonths])].sort(compareMonthKeys);
+
+  // Tomar como "mes vivo" el último mes disponible en monthlyData
+  const latestMonthlyKey = currentMonths.length ? currentMonths[currentMonths.length - 1] : null;
+
+  allMonths.forEach(monthKey => {
+    result[monthKey] = {};
+
+    Object.keys(YTD_PLANTS).forEach(plantKey => {
+      let com = 0;
+      let real = 0;
+
+      const hasMonthlyPlantData =
+        monthlyData?.[monthKey]?.contractual?.[plantKey]?.length ||
+        monthlyData?.[monthKey]?.generation?.[plantKey]?.length;
+
+      const hasSummaryPlantData = ytdMonthlySummary?.[monthKey]?.[plantKey];
+
+      // 1) Para el último mes cargado en monthlyData, usar siempre monthlyData
+      if (monthKey === latestMonthlyKey && hasMonthlyPlantData) {
+        com = ytdSum(monthlyData[monthKey]?.contractual?.[plantKey] || []);
+        real = ytdSum(monthlyData[monthKey]?.generation?.[plantKey] || []);
+      }
+      // 2) Para meses históricos, usar resumen YTD
+      else if (hasSummaryPlantData) {
+        com = Number(ytdMonthlySummary[monthKey][plantKey].com || 0);
+        real = Number(ytdMonthlySummary[monthKey][plantKey].real || 0);
+      }
+      // 3) Respaldo si no hay resumen pero sí data mensual
+      else if (hasMonthlyPlantData) {
+        com = ytdSum(monthlyData[monthKey]?.contractual?.[plantKey] || []);
+        real = ytdSum(monthlyData[monthKey]?.generation?.[plantKey] || []);
+      }
+
+      if (monthKey === latestMonthlyKey) {
+        console.log('YTD TABLA usando monthlyData en:', monthKey, plantKey, {
+        com,
+        real
+      });
+}
+
+      result[monthKey][plantKey] = {
+        com,
+        real,
+        diff: real - com,
+        diffPct: com > 0 ? ((real - com) / com) * 100 : 0
+      };
+    });
+  });
+
+  return result;
+}
+
+function getPlantMonthsForYtd(monthlyTotals, plantKey) {
+  const start = YTD_PLANTS[plantKey].start;
+  return Object.keys(monthlyTotals)
+    .filter(monthKey => monthKey >= start)
+    .sort(compareMonthKeys);
+}
+
+function renderMonthlyTablesYtd() {
+  const container = document.getElementById("monthlyTablesContainer");
+  if (!container) return;
+
+  const monthlyTotals = buildYtdMonthlyTotals();
+  container.innerHTML = "";
+
+  Object.keys(YTD_PLANTS).forEach(plantKey => {
+    const plant = YTD_PLANTS[plantKey];
+    const months = getPlantMonthsForYtd(monthlyTotals, plantKey);
+    if (!months.length) return;
+
+    const totals = months.reduce((acc, monthKey) => {
+      acc.real += monthlyTotals[monthKey][plantKey].real;
+      acc.com += monthlyTotals[monthKey][plantKey].com;
+      return acc;
+    }, { real: 0, com: 0 });
+
+    const ytdDiff = totals.real - totals.com;
+    const ytdPct = totals.com > 0 ? ((totals.real - totals.com) / totals.com) * 100 : 0;
+
+    const headerMonths = months.map(monthKey =>
+      `<th>${monthLabelFromKey(monthKey, isPartialMonth(monthKey))}</th>`
+    ).join("");
+
+    const comRow = months.map(monthKey =>
+      `<td>${ytdFormatNumber(monthlyTotals[monthKey][plantKey].com, 2)}</td>`
+    ).join("");
+
+    const realRow = months.map(monthKey =>
+      `<td>${ytdFormatNumber(monthlyTotals[monthKey][plantKey].real, 2)}</td>`
+    ).join("");
+
+    const diffRow = months.map(monthKey => {
+      const diff = monthlyTotals[monthKey][plantKey].diff;
+      return `<td class="${diffClass(diff)}">${ytdFormatSignedNumber(diff, 2)}</td>`;
+    }).join("");
+
+    const diffPctRow = months.map(monthKey => {
+      const diffPct = monthlyTotals[monthKey][plantKey].diffPct;
+      return `<td class="${diffClass(diffPct)}">${ytdFormatSignedPercent(diffPct, 2)}</td>`;
+    }).join("");
+
+    const firstMonth = monthLabelFromKey(months[0], false);
+    const lastMonth = monthLabelFromKey(months[months.length - 1], isPartialMonth(months[months.length - 1]));
+    const startSuffix = plantKey === "duran" ? " (inicio de operaciones)" : "";
+
+    const card = document.createElement("div");
+    card.className = "chart-card";
+    card.style.marginBottom = "14px";
+
+    card.innerHTML = `
+      <div class="chart-header">
+        <div>
+          <div class="chart-title"><span class="dot" style="background:${plant.color}"></span>${plant.name} — Detalle Mensual</div>
+          <div class="chart-subtitle">${firstMonth} → ${lastMonth}${startSuffix}</div>
+        </div>
+      </div>
+
+      <div class="table-scroll">
+        <table class="monthly-table">
+          <thead>
+            <tr>
+              <th>Métrica</th>
+              ${headerMonths}
+              <th style="color:var(--accent1);">YTD</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight:600; color:var(--muted);">COM (kWh)</td>
+              ${comRow}
+              <td style="color:var(--accent1); font-weight:700;">${ytdFormatNumber(totals.com, 0)}</td>
+            </tr>
+            <tr>
+              <td style="font-weight:600; color:${plant.color};">REAL (kWh)</td>
+              ${realRow}
+              <td style="color:${plant.color}; font-weight:700;">${ytdFormatNumber(totals.real, 0)}</td>
+            </tr>
+            <tr>
+              <td style="font-weight:600; color:var(--muted);">DIF (kWh)</td>
+              ${diffRow}
+              <td class="${diffClass(ytdDiff)}" style="font-weight:700;">${ytdFormatSignedNumber(ytdDiff, 0)}</td>
+            </tr>
+            <tr class="ytd-row">
+              <td style="font-weight:700; color:var(--yellow);">DIF (%)</td>
+              ${diffPctRow}
+              <td class="${diffClass(ytdPct)}" style="font-weight:700;">${ytdFormatSignedPercent(ytdPct, 1)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      ${isPartialMonth(months[months.length - 1]) ? `
+        <div style="margin-top:10px; font-size:0.72rem; color:var(--muted);">
+          * ${monthLabelFromKey(months[months.length - 1], true)}: datos parciales del mes en curso
+        </div>
+      ` : ""}
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+function getPlantGradient(plantKey) {
+  if (plantKey === "fp4") return "linear-gradient(90deg, #4ade80, #86efac)";
+  if (plantKey === "duran") return "linear-gradient(90deg, #f59e0b, #fde68a)";
+  return "linear-gradient(90deg, #38bdf8, #7dd3fc)";
+}
+
+function buildYtdInsight(monthlyTotals) {
+  const summary = Object.keys(YTD_PLANTS).map(plantKey => {
+    const months = getPlantMonthsForYtd(monthlyTotals, plantKey);
+    const totals = months.reduce((acc, monthKey) => {
+      acc.real += monthlyTotals[monthKey][plantKey].real;
+      acc.com += monthlyTotals[monthKey][plantKey].com;
+      return acc;
+    }, { real: 0, com: 0 });
+
+    const diffPct = totals.com > 0 ? ((totals.real - totals.com) / totals.com) * 100 : 0;
+
+    return {
+      plantKey,
+      name: YTD_PLANTS[plantKey].name,
+      diffPct
+    };
+  });
+
+  const worstPlant = [...summary].sort((a, b) => a.diffPct - b.diffPct)[0];
+
+  const allMonths = [];
+  Object.keys(YTD_PLANTS).forEach(plantKey => {
+    getPlantMonthsForYtd(monthlyTotals, plantKey).forEach(monthKey => {
+      allMonths.push({
+        plant: YTD_PLANTS[plantKey].name,
+        monthKey,
+        diffPct: monthlyTotals[monthKey][plantKey].diffPct
+      });
+    });
+  });
+
+  const worstMonth = [...allMonths].sort((a, b) => a.diffPct - b.diffPct)[0];
+  const bestMonth = [...allMonths].sort((a, b) => b.diffPct - a.diffPct)[0];
+
+  return `
+    ${worstPlant.name} presenta el mayor desvío acumulado con ${ytdFormatSignedPercent(worstPlant.diffPct, 1)}.
+    El mes más crítico del periodo fue ${monthLabelFromKey(worstMonth.monthKey)} para ${worstMonth.plant} con ${ytdFormatSignedPercent(worstMonth.diffPct, 1)}.
+    El mejor desempeño mensual fue ${monthLabelFromKey(bestMonth.monthKey)} para ${bestMonth.plant} con ${ytdFormatSignedPercent(bestMonth.diffPct, 1)}.
+  `.replace(/\s+/g, " ").trim();
+}
+
+function renderYtdProgress() {
+  const container = document.getElementById("ytdProgressContainer");
+  if (!container) return;
+
+  const monthlyTotals = buildYtdMonthlyTotals();
+  const order = ["fp4", "duran", "caucedo"];
+
+  const barsHtml = order.map(plantKey => {
+    const plant = YTD_PLANTS[plantKey];
+    const months = getPlantMonthsForYtd(monthlyTotals, plantKey);
+    if (!months.length) return "";
+
+    const totals = months.reduce((acc, monthKey) => {
+      acc.real += monthlyTotals[monthKey][plantKey].real;
+      acc.com += monthlyTotals[monthKey][plantKey].com;
+      return acc;
+    }, { real: 0, com: 0 });
+
+    const progressPct = totals.com > 0 ? (totals.real / totals.com) * 100 : 0;
+    const diff = totals.real - totals.com;
+    const diffPct = totals.com > 0 ? ((totals.real - totals.com) / totals.com) * 100 : 0;
+
+    return `
+      <div style="margin-bottom:22px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-weight:600; color:${plant.color};">${plant.name}</span>
+          <span style="font-size:0.82rem; color:var(--muted);">
+            ${ytdFormatNumber(totals.real, 0)} / ${ytdFormatNumber(totals.com, 0)} kWh
+            &nbsp;·&nbsp;
+            <strong class="${diffClass(diffPct)}">${progressPct.toFixed(1)}%</strong>
+          </span>
+        </div>
+
+        <div class="prog-bar-bg" style="height:14px; border-radius:8px;">
+          <div class="prog-bar-fill"
+               style="width:${Math.max(0, Math.min(progressPct, 100))}%;
+                      height:14px;
+                      border-radius:8px;
+                      background:${getPlantGradient(plantKey)};
+                      position:relative;">
+            <div style="position:absolute; right:4px; top:50%; transform:translateY(-50%); font-size:0.65rem; font-weight:700; color:#071912;">
+              ${progressPct.toFixed(1)}%
+            </div>
+          </div>
+        </div>
+
+        <div style="font-size:0.72rem; color:var(--muted); margin-top:5px;">
+          ${diff >= 0 ? "Superávit" : "Déficit"}: ${ytdFormatSignedNumber(diff, 0)} kWh (${ytdFormatSignedPercent(diffPct, 1)})
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  container.innerHTML = `
+    <div class="chart-card" style="margin-bottom:18px;">
+      <div style="padding:10px 8px;">
+        ${barsHtml}
+        <div style="margin-top:20px; padding:14px; background: rgba(163,230,53,0.06); border:1px solid rgba(163,230,53,0.2); border-radius:10px; font-size:0.8rem; color:var(--muted); line-height:1.6;">
+          🌿 <strong style="color:var(--text);">Análisis YTD:</strong> ${buildYtdInsight(monthlyTotals)}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderYtdDynamicSection() {
+  renderMonthlyTablesYtd();
+  renderYtdProgress();
+}
+
+
+
+selectedMonth = document.getElementById('monthSelector')?.value || '';
+
+function getCurrentMonthData() {
+  const fallbackMonth = Object.keys(monthlyData || {}).sort().slice(-1)[0] || '';
+
+  if (!selectedMonth || !monthlyData[selectedMonth]) {
+    selectedMonth = fallbackMonth;
+  }
+
+  return monthlyData[selectedMonth] || {
+    label: selectedMonth || 'Sin datos',
+    days: [],
+    generation: {
+      duran: [],
+      caucedo: [],
+      fp4: []
+    },
+    contractual: {
+      duran: [],
+      caucedo: [],
+      fp4: []
+    },
+    irradiation: {
+      duran: { real: 0, contractual: 0 },
+      fp4: { real: 0, contractual: 0 }
+    },
+    alarms: []
+  };
+}
+
+function sum(arr) {
+  return arr.reduce((a, b) => a + Number(b || 0), 0);
+}
+
+function cumsum(arr) {
+  let s = 0;
+  return arr.map(v => {
+    s += Number(v || 0);
+    return Math.round(s);
+  });
+}
+// FUNCION AGREGADO//
+function getContractualData() {
+  const m = getCurrentMonthData();
+  const real = {
+    duran: sum(m.generation.duran),
+    caucedo: sum(m.generation.caucedo),
+    fp4: sum(m.generation.fp4)
+  };
+
+  const contract = {
+    duran: sum(m.contractual.duran),
+    caucedo: sum(m.contractual?.caucedo),
+    fp4: sum(m.contractual.fp4)
+  };
+
+  return { real, contract };
+}
+
+//FUNCION AGREGADA 
+function formatNumber(value) {
+  return Number(value).toLocaleString('es-ES', {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1
+  });
+}
+
+//FUUNCIONES PARA KPI
+function getMonthLabel() {
+  return getCurrentMonthData()?.label || '';
+}
+
+//FUNCION PARA TABLA DE IRRADIANCIA
+function renderIrrSummaryBox() {
+  const m = getCurrentMonthData();
+  const box = document.getElementById('irrSummaryBox');
+
+  const plants = [
+    { key: 'duran', name: 'PV DURAN', color: 'var(--accent1)', grad: 'linear-gradient(90deg, #f59e0b, #fde68a)' },
+    { key: 'caucedo', name: 'PV CAUCEDO', color: 'var(--accent2)', grad: '#38bdf8' },
+    { key: 'fp4', name: 'PV FP4', color: 'var(--accent3)', grad: 'linear-gradient(90deg, #4ade80, #86efac)' }
+  ];
+
+  let html = '';
+
+  plants.forEach(p => {
+    const item = m.irradiation?.[p.key];
+
+    if (!item) {
+      html += `
+        <div class="irr-row">
+          <div class="irr-label">
+            <span style="color:${p.color}; font-weight:600;">${p.name}</span>
+            <span style="color:var(--muted);">Sin dato disponible</span>
+          </div>
+          <div class="irr-bar-bg">
+            <div class="irr-bar-fill" style="width:0%; background:${p.grad};"></div>
+          </div>
+          <div style="font-size:0.72rem; color: var(--muted); margin-top:4px;">— No se monitorea irradiación</div>
+        </div>
+      `;
+      return;
+    }
+
+    const pct = item.contractual > 0 ? (item.real / item.contractual) * 100 : 0;
+    const diff = item.real - item.contractual;
+    const deficitText = diff >= 0
+      ? `▲ Superávit: ${formatNumber(Math.abs(diff))} kWh/m² (+${Math.abs((diff / item.contractual) * 100).toFixed(1)}%)`
+      : `▼ Déficit: ${formatNumber(Math.abs(diff))} kWh/m² (−${Math.abs((diff / item.contractual) * 100).toFixed(1)}%)`;
+
+    const colorText = diff >= 0 ? 'var(--green)' : 'var(--red)';
+
+    html += `
+      <div class="irr-row">
+        <div class="irr-label">
+          <span style="color:${p.color}; font-weight:600;">${p.name}</span>
+          <span style="color:var(--muted);">${formatNumber(item.real)} / ${formatNumber(item.contractual)} kWh/m²</span>
+        </div>
+        <div class="irr-bar-bg">
+          <div class="irr-bar-fill" style="width:${Math.min(pct,100)}%; background:${p.grad};">
+            <div class="irr-bar-target" style="left:100%; transform:translateX(-50%)"></div>
+          </div>
+        </div>
+        <div style="font-size:0.72rem; color:${colorText}; margin-top:4px;">${deficitText}</div>
+      </div>
+    `;
+  });
+
+  html += `
+    <div style="margin-top:20px; padding:14px; background: rgba(56,189,248,0.06); border:1px solid rgba(56,189,248,0.2); border-radius:10px; font-size:0.8rem; color:var(--muted);">
+      💡 <strong style="color:var(--text);">Nota:</strong> Resumen dinámico de irradiación para ${m.label}.
+    </div>
+  `;
+
+  box.innerHTML = html;
+}
+
+
+function getCapacityTotal() {
+  const m = getCurrentMonthData();
+  return (m.capacity?.duran || 0) + (m.capacity?.caucedo || 0) + (m.capacity?.fp4 || 0);
+}
+
+function getIrradiationStatus(real, contractual) {
+  if (real == null || contractual == null || contractual === 0) {
+    return {
+      text: 'N/D',
+      className: 'neutral',
+      pct: null,
+      diff: null
+    };
+  }
+  const diff = real - contractual;
+  const pct = (diff / contractual) * 100;
+
+  if (pct >= 0) {
+    return {
+      text: `▲ ${Math.abs(pct).toFixed(1)}% superávit`,
+      className: 'up',
+      pct,
+      diff
+    };
+  }
+  return {
+    text: `▼ ${Math.abs(pct).toFixed(1)}% déficit`,
+    className: 'down',
+    pct,
+    diff
+  };
+}
+
+function updateHeaderAndKPIs() {
+  const m = getCurrentMonthData();
+  const contractual = getContractualData();
+
+  const totalEnergy = contractual.real.duran + contractual.real.caucedo + contractual.real.fp4;
+  const totalCapacity = getCapacityTotal();
+
+  document.getElementById('headerMonthBadge').textContent = `📅 ${m.label}`;
+  document.getElementById('monthlySectionTitle').textContent = `📈 Generación Diaria — ${m.label}`;
+
+  document.getElementById('kpiTotalEnergy').textContent = formatNumber(totalEnergy);
+  document.getElementById('kpiCapacity').textContent = formatNumber(totalCapacity);
+
+  const dur = m.irradiation?.duran;
+  const fp4 = m.irradiation?.fp4;
+
+  // DURAN
+  if (dur) {
+    const s = getIrradiationStatus(dur.real, dur.contractual);
+    document.getElementById('kpiIrrDurReal').textContent = formatNumber(dur.real);
+    document.getElementById('kpiIrrDurSub').textContent = `kWh/m² real vs ${formatNumber(dur.contractual)} contractual`;
+
+    const badge = document.getElementById('kpiIrrDurBadge');
+    badge.textContent = s.text;
+    badge.className = `kpi-badge ${s.className}`;
+  } else {
+    document.getElementById('kpiIrrDurReal').textContent = 'N/D';
+    document.getElementById('kpiIrrDurSub').textContent = 'Sin dato disponible';
+    const badge = document.getElementById('kpiIrrDurBadge');
+    badge.textContent = 'N/D';
+    badge.className = 'kpi-badge neutral';
+  }
+
+  // FP4
+  if (fp4) {
+    const s = getIrradiationStatus(fp4.real, fp4.contractual);
+    document.getElementById('kpiIrrFp4Real').textContent = formatNumber(fp4.real);
+    document.getElementById('kpiIrrFp4Sub').textContent = `kWh/m² real vs ${formatNumber(fp4.contractual)} contractual`;
+
+    const badge = document.getElementById('kpiIrrFp4Badge');
+    badge.textContent = s.text;
+    badge.className = `kpi-badge ${s.className}`;
+  } else {
+    document.getElementById('kpiIrrFp4Real').textContent = 'N/D';
+    document.getElementById('kpiIrrFp4Sub').textContent = 'Sin dato disponible';
+    const badge = document.getElementById('kpiIrrFp4Badge');
+    badge.textContent = 'N/D';
+    badge.className = 'kpi-badge neutral';
+  }
+}
+function getComplianceBadge(pct) {
+  if (pct >= 100) return { text: 'SOBRE META', className: 'up', color: 'var(--green)' };
+  if (pct < 98) return { text: 'BAJO META', className: 'down', color: 'var(--red)' };
+  return { text: 'CERCANO', className: 'neutral', color: 'var(--yellow)' };
+}
+function renderPlantSummaryTable() {
+  const m = getCurrentMonthData();
+  const tbody = document.getElementById('plantSummaryBody');
+  const title = document.getElementById('plantSummaryTitle');
+  if (!tbody) return;
+
+  if (title) {
+    title.textContent = `📋 Tabla Resumen por Planta — ${m.label}`;
+  }
+
+  const plants = [
+    { key: 'duran', name: 'PV DURAN', color: 'var(--accent1)' },
+    { key: 'caucedo', name: 'PV CAUCEDO', color: 'var(--accent2)' },
+    { key: 'fp4', name: 'PV FP4', color: 'var(--accent3)' }
+  ];
+
+  let totalCap = 0;
+  let totalReal = 0;
+  let totalContract = 0;
+  let rows = '';
+
+  plants.forEach(p => {
+    const cap = m.capacity?.[p.key] || 0;
+    const real = sum(m.generation?.[p.key] || []);
+    const contract = sum(m.contractual?.[p.key] || []);
+    const pct = contract > 0 ? (real / contract) * 100 : 0;
+    const badge = getComplianceBadge(pct);
+
+    const irr = m.irradiation?.[p.key];
+    let irrReal = '—';
+    let irrContract = '—';
+    let irrVar = 'N/D';
+    let irrVarColor = 'var(--muted)';
+
+    if (irr) {
+      const pctIrr = irr.contractual > 0 ? ((irr.real - irr.contractual) / irr.contractual) * 100 : 0;
+      irrReal = formatNumber(irr.real);
+      irrContract = formatNumber(irr.contractual);
+      irrVar = `${pctIrr >= 0 ? '+' : '−'}${Math.abs(pctIrr).toFixed(1)}%`;
+      irrVarColor = pctIrr >= 0 ? 'var(--green)' : 'var(--red)';
+    }
+
+    rows += `
+      <tr>
+        <td><span class="dot" style="background:${p.color}"></span>${p.name}</td>
+        <td>${formatNumber(cap)}</td>
+        <td><strong>${formatNumber(real)}</strong></td>
+        <td>${formatNumber(contract)}</td>
+        <td style="color:${badge.color}; font-weight:700;">${pct.toFixed(1)}%</td>
+        <td>${irrReal}</td>
+        <td>${irrContract}</td>
+        <td style="color:${irrVarColor};">${irrVar}</td>
+        <td><span class="kpi-badge ${badge.className}">${badge.text}</span></td>
+      </tr>
+    `;
+
+    totalCap += cap;
+    totalReal += real;
+    totalContract += contract;
+  });
+
+  const totalPct = totalContract > 0 ? (totalReal / totalContract) * 100 : 0;
+  const totalBadge = getComplianceBadge(totalPct);
+
+  rows += `
+    <tr class="total-row">
+      <td><strong>TOTAL</strong></td>
+      <td><strong>${formatNumber(totalCap)}</strong></td>
+      <td><strong>${formatNumber(totalReal)}</strong></td>
+      <td><strong>${formatNumber(totalContract)}</strong></td>
+      <td style="color:${totalBadge.color}; font-weight:700;">${totalPct.toFixed(1)}%</td>
+      <td colspan="3" style="color:var(--muted); font-weight:400; font-size:0.8rem;">— Resumen mensual dinámico</td>
+      <td><span class="kpi-badge ${totalBadge.className}">GLOBAL</span></td>
+    </tr>
+  `;
+
+  //if (tbody) {
+  //  tbody.innerHTML = rows;
+  //}
+  tbody.innerHTML = rows;
+}
+
+// FIN DE TEXTO AGREGADO 
+
+
+function hexToRgba(hex, alpha) {
+  const clean = hex.replace('#', '');
+  const bigint = parseInt(clean, 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function getGaugeStatus(pct) {
+  if (pct >= 100) {
+    return {
+      badgeClass: 'up',
+      badgeText: '✅ SOBRE CONTRATO'
+    };
+  } else if (pct < 98) {
+    return {
+      badgeClass: 'down',
+      badgeText: '⚠️ BAJO CONTRATO'
+    };
+  } else {
+    return {
+      badgeClass: 'neutral',
+      badgeText: '🔶 CERCANO'
+    };
+  }
+}
+
+function renderContractGauges() {
+  const grid = document.getElementById('contractGaugeGrid');
+  const c = getContractualData();
+
+  const items = [
+    {
+      plant: 'PV DURAN',
+      real: c.real.duran,
+      contract: c.contract.duran,
+      color: '#f59e0b',
+      textColor: 'var(--accent1)'
+    },
+    {
+      plant: 'PV CAUCEDO',
+      real: c.real.caucedo,
+      contract: c.contract.caucedo,
+      color: '#38bdf8',
+      textColor: 'var(--accent2)'
+    },
+    {
+      plant: 'PV FP4',
+      real: c.real.fp4,
+      contract: c.contract.fp4,
+      color: '#4ade80',
+      textColor: 'var(--accent3)'
+    }
+  ];
+
+  grid.innerHTML = '';
+
+  items.forEach(item => {
+    const pct = item.contract > 0 ? (item.real / item.contract) * 100 : 0;
+    const pctDisplay = pct.toFixed(1);
+    const pctArc = Math.min(pct, 100);
+    const status = getGaugeStatus(pct);
+
+    const html = `
+      <div class="gauge-item">
+        <div class="gauge-circle"
+             style="background: conic-gradient(${item.color} 0% ${pctArc}%, #e5e7eb ${pctArc}% 100%);
+                    box-shadow: 0 0 22px ${hexToRgba(item.color, 0.25)};">
+          <span style="background:var(--card); width:82px; height:82px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:${item.textColor};">
+            ${pctDisplay}%
+          </span>
+        </div>
+        <div class="gauge-plant">${item.plant}</div>
+        <div class="gauge-label">${formatNumber(item.real)} / ${formatNumber(item.contract)} kWh</div>
+        <span class="kpi-badge ${status.badgeClass}" style="font-size:0.7rem;">${status.badgeText}</span>
+      </div>
+    `;
+
+    grid.insertAdjacentHTML('beforeend', html);
+  });
+}
+// AGREGADO TERMINADO//
+function getCurrentTotals() {
+  const m = getCurrentMonthData();
+  return {
+    duran: sum(m.generation.duran),
+    caucedo: sum(m.generation.caucedo),
+    fp4: sum(m.generation.fp4)
+  };
+}
+
+function getAlarmSummary() {
+  const m = getCurrentMonthData();
+
+  const plantMap = {
+    duran: 'PV DURAN',
+    caucedo: 'PV CAUCEDO',
+    fp4: 'PV FP4'
+  };
+
+  const byPlant = { 'PV DURAN': 0, 'PV CAUCEDO': 0, 'PV FP4': 0 };
+  let totalKwh = 0;
+  let totalHours = 0;
+
+  (m.alarms || []).forEach(a => {
+    const plantName = plantMap[a.plant] || a.plant;
+    byPlant[plantName] = (byPlant[plantName] || 0) + Number(a.lossKwh || 0);
+    totalKwh += Number(a.lossKwh || 0);
+    totalHours += Number(a.hours || 0);
+  });
+
+  return {
+    byPlant,
+    totalKwh,
+    totalHours,
+    events: (m.alarms || []).length
+  };
+}
+/*AQUI ACABA LA MODIFICACION*/
+/*
+// ─── DATOS YTD ───
+const mesesCau = ['May-25','Jun-25','Jul-25','Ago-25','Sep-25','Oct-25','Nov-25','Dic-25','Ene-26','Feb-26','Mar-26*'];
+const comCau   = [81601,77875,80526,77836,72736,66810,57820,56658,55840,58427.6,23738.7];
+const realCau  = [63580.7,63614.4,59415.6,79217.8,64967.3,58138.6,50501.1,52357.5,55595.1,56006.1,20411];
+
+const mesesFP4 = ['May-25','Jun-25','Jul-25','Ago-25','Sep-25','Oct-25','Nov-25','Dic-25','Ene-26','Feb-26','Mar-26*'];
+const comFP4   = [148500,113097,137055,186523,281093,377798,464900,520964,481332,377628.44,107006];
+const realFP4  = [162702,115868,120919,164676,243699,406902.8,379947,466476,446784.3,373186.5,104613];
+
+const mesesDur = ['Ago-25','Sep-25','Oct-25','Nov-25','Dic-25','Ene-26','Feb-26','Mar-26*'];
+const comDur   = [86113,81164,80174,78194,82153,73640,70110,27019];
+const realDur  = [77538.7,76111.6,79164.7,62236.8,75440,70884.1,74787.1,24915];
+
+////
+*/
+function normalizeLegacyMonth(label) {
+  const clean = String(label).replace('*', '').trim();
+  const [mon, yy] = clean.split('-');
+
+  const monthMap = {
+    Ene: '01',
+    Feb: '02',
+    Mar: '03',
+    Abr: '04',
+    May: '05',
+    Jun: '06',
+    Jul: '07',
+    Ago: '08',
+    Sep: '09',
+    Oct: '10',
+    Nov: '11',
+    Dic: '12'
+  };
+
+  const mm = monthMap[mon];
+  if (!mm || !yy) return null;
+
+  return `20${yy}-${mm}`;
+}
+
+function mergeLegacyYtdIntoSummary() {
+  const legacySets = [
+    { plant: 'caucedo', months: mesesCau, com: comCau, real: realCau },
+    { plant: 'fp4', months: mesesFP4, com: comFP4, real: realFP4 },
+    { plant: 'duran', months: mesesDur, com: comDur, real: realDur }
+  ];
+
+  legacySets.forEach(({ plant, months, com, real }) => {
+    months.forEach((label, i) => {
+      const monthKey = normalizeLegacyMonth(label);
+      if (!monthKey) return;
+
+      if (!ytdMonthlySummary[monthKey]) {
+        ytdMonthlySummary[monthKey] = {};
+      }
+
+      // Solo completar si el JSON no trae ese mes/planta
+      if (!ytdMonthlySummary[monthKey][plant]) {
+        ytdMonthlySummary[monthKey][plant] = {
+          com: Number(com[i] || 0),
+          real: Number(real[i] || 0)
+        };
+      }
+    });
+  });
+}
+
+// ─── DIFERENCIAS % ───
+const difPctCau = mesesCau.map((m,i) => +((realCau[i]/comCau[i]*100 - 100).toFixed(2)));
+const difPctFP4 = mesesFP4.map((m,i) => +((realFP4[i]/comFP4[i]*100 - 100).toFixed(2)));
+const difPctDurFull = [null,null,null,...mesesDur.map((m,i) => +((realDur[i]/comDur[i]*100 - 100).toFixed(2)))];
+
+// ─── CHART DEFAULTS ───
+Chart.defaults.color = '#4b5563';
+Chart.defaults.borderColor = 'rgba(107,114,128,0.2)';
+Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+
+const mkTooltip = (extraCb) => ({
+  plugins: {
+    tooltip: {
+      backgroundColor: '#0f2d20',
+      borderColor: '#1e5c3a',
+      borderWidth: 1,
+      titleColor: '#e8f5e9',
+      bodyColor: '#7db99a',
+      padding: 11,
+      callbacks: extraCb || { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y?.toLocaleString('es-ES',{minimumFractionDigits:1}) ?? ctx.parsed.toLocaleString('es-ES')} kWh` }
+    },
+    legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, color: '#7db99a' } }
+  }
+});
+
+// ─── 1. GRÁFICO DIARIO ───
+/* INICIO MODIFICADDOOOO*/
+let chartDiario = new Chart(document.getElementById('chartDiario'), {
+  type: 'line',
+  data: {
+    labels: getCurrentMonthData().days,
+    datasets: [
+      { label: 'PV DURAN',   data: getCurrentMonthData().generation.duran,   borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.08)', tension: 0.35, pointRadius: 3, pointHoverRadius: 6, fill: true },
+      { label: 'PV CAUCEDO', data: getCurrentMonthData().generation.caucedo, borderColor: '#38bdf8', backgroundColor: 'rgba(56,189,248,0.08)', tension: 0.35, pointRadius: 3, pointHoverRadius: 6, fill: true },
+      { label: 'PV FP4',     data: getCurrentMonthData().generation.fp4,     borderColor: '#4ade80', backgroundColor: 'rgba(74,222,128,0.06)', tension: 0.35, pointRadius: 3, pointHoverRadius: 6, fill: true }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    scales: {
+      x: { grid: { color: 'rgba(30,92,58,0.35)' } },
+      y: { grid: { color: 'rgba(30,92,58,0.35)' }, ticks: { callback: v => v.toLocaleString('es-ES') + ' kWh' } }
+    },
+    ...mkTooltip()
+  }
+});
+/* FIN DE MODIFICACION*/
+
+/*NUEVO BLOQUE AGREGADO PARA LAS ALARMAS*/
+let chartAlarmLoss = new Chart(document.getElementById('chartAlarmLoss'), {
+  type: 'bar',
+  data: {
+    labels: ['PV DURAN', 'PV CAUCEDO', 'PV FP4'],
+    datasets: [{
+      label: 'Pérdida estimada por alarmas (kWh)',
+      data: [0, 0, 0],
+      backgroundColor: [
+        'rgba(245,158,11,0.78)',
+        'rgba(56,189,248,0.78)',
+        'rgba(74,222,128,0.78)'
+      ],
+      borderColor: ['#f59e0b','#38bdf8','#4ade80'],
+      borderWidth: 1.5,
+      borderRadius: 8
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: { grid: { display: false } },
+      y: {
+        grid: { color: 'rgba(30,92,58,0.35)' },
+        ticks: { callback: v => v.toLocaleString('es-ES') + ' kWh' }
+      }
+    },
+    plugins: {
+      tooltip: {
+        backgroundColor: '#0f2d20',
+        borderColor: '#1e5c3a',
+        borderWidth: 1,
+        titleColor: '#e8f5e9',
+        bodyColor: '#7db99a',
+        padding: 11,
+        callbacks: {
+          label: ctx => ` ${ctx.parsed.y.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kWh`
+        }
+      },
+      legend: {
+        labels: {
+          usePointStyle: true,
+          pointStyle: 'circle',
+          padding: 16,
+          color: '#7db99a'
+        }
+      }
+    }
+  }
+});
+
+/*FIN DE BLOQUE AGREGADO*/
+
+// ─── 2. ACUMULADO ───
+let chartAcumulado = new Chart(document.getElementById('chartAcumulado'), {
+  type: 'line',
+  data: {
+    labels: getCurrentMonthData().days,
+    datasets: [
+      {
+        label: 'PV DURAN',
+        data: cumsum(getCurrentMonthData().generation.duran),
+        borderColor: '#f59e0b',
+        backgroundColor: 'rgba(245,158,11,0.07)',
+        tension: 0.35,
+        fill: true,
+        pointRadius: 0
+      },
+      {
+        label: 'PV CAUCEDO',
+        data: cumsum(getCurrentMonthData().generation.caucedo),
+        borderColor: '#38bdf8',
+        backgroundColor: 'rgba(56,189,248,0.07)',
+        tension: 0.35,
+        fill: true,
+        pointRadius: 0
+      },
+      {
+        label: 'PV FP4',
+        data: cumsum(getCurrentMonthData().generation.fp4),
+        borderColor: '#4ade80',
+        backgroundColor: 'rgba(74,222,128,0.07)',
+        tension: 0.35,
+        fill: true,
+        pointRadius: 0
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    scales: {
+      x: { grid: { color: 'rgba(30,92,58,0.35)' } },
+      y: { grid: { color: 'rgba(30,92,58,0.35)' }, ticks: { callback: v => (v/1000).toFixed(0)+'k' } }
+    },
+    plugins: {
+      tooltip: {
+        backgroundColor: '#0f2d20',
+        borderColor: '#1e5c3a',
+        borderWidth: 1,
+        titleColor: '#e8f5e9',
+        bodyColor: '#7db99a',
+        padding: 11,
+        callbacks: {
+          label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString('es-ES')} kWh acum.`
+        }
+      },
+      legend: {
+        labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, color: '#7db99a' }
+      }
+    }
+  }
+});
+
+// ─── 3. PIE ───
+let chartPie = new Chart(document.getElementById('chartPie'), {
+  type: 'doughnut',
+  data: {
+    labels: ['PV DURAN', 'PV CAUCEDO', 'PV FP4'],
+    datasets: [{
+      data: [74787.1, 56006.1, 373186.5],
+      backgroundColor: ['rgba(245,158,11,0.85)', 'rgba(56,189,248,0.85)', 'rgba(74,222,128,0.85)'],
+      borderColor: ['#f59e0b','#38bdf8','#4ade80'],
+      borderWidth: 2, hoverOffset: 10
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout: '65%',
+    plugins: {
+      tooltip: {
+        backgroundColor: '#0f2d20', borderColor: '#1e5c3a', borderWidth:1,
+        titleColor: '#e8f5e9', bodyColor: '#7db99a', padding:11,
+        callbacks: {
+          label: ctx => { const t=503979.7; const p=((ctx.raw/t)*100).toFixed(1); return ` ${ctx.raw.toLocaleString('es-ES')} kWh (${p}%)`; }
+        }
+      },
+      legend: { position:'bottom', labels: { usePointStyle:true, pointStyle:'circle', padding:14, font:{size:12}, color:'#7db99a' } }
+    }
+  }
+});
+//const contract0 = getContractualData();
+const contract0 = getContractualData();
+// ─── 4. CONTRACTUAL BAR FEB ───
+let chartContractual = new Chart(document.getElementById('chartContractual'), {
+  type: 'bar',
+  data: {
+    labels: ['PV DURAN', 'PV CAUCEDO', 'PV FP4'],
+    datasets: [
+      {
+        label: 'Energía Real',
+        data: [
+          contract0.real.duran,
+          contract0.real.caucedo,
+          contract0.real.fp4
+        ],
+        backgroundColor: [
+          'rgba(245,158,11,0.8)',
+          'rgba(56,189,248,0.8)',
+          'rgba(74,222,128,0.8)'
+        ],
+        borderRadius: 6,
+        borderSkipped: false
+      },
+      {
+        label: 'Energía Contractual',
+        data: [
+          contract0.contract.duran,
+          contract0.contract.caucedo,
+          contract0.contract.fp4
+        ],
+        backgroundColor: [
+          'rgba(245,158,11,0.2)',
+          'rgba(56,189,248,0.2)',
+          'rgba(74,222,128,0.2)'
+        ],
+        borderColor: ['#f59e0b', '#38bdf8', '#4ade80'],
+        borderWidth: 2,
+        borderRadius: 6,
+        borderSkipped: false
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    scales: {
+      x: { grid: { display: false } },
+      y: {
+        grid: { color: 'rgba(30,92,58,0.35)' },
+        ticks: { callback: v => (v / 1000).toFixed(0) + 'k kWh' }
+      }
+    },
+    plugins: {
+      tooltip: {
+        backgroundColor: '#0f2d20',
+        borderColor: '#1e5c3a',
+        borderWidth: 1,
+        titleColor: '#e8f5e9',
+        bodyColor: '#7db99a',
+        padding: 11,
+        callbacks: {
+          label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString('es-ES')} kWh`
+        }
+      },
+      legend: {
+        labels: { usePointStyle: true, pointStyle: 'circle', padding: 16, color: '#7db99a' }
+      }
+    }
+  }
+});
+
+// ─── IRRADIACIÓN REAL VS CONTRACTUAL ───
+const irrCanvas = document.getElementById('chartIrrBar');
+let chartIrrBar = null;
+let chartYTD_FP4 = null;
+let chartYTD_CAU = null;
+let chartYTD_DUR = null;
+let chartDifPct = null;
+
+
+if (irrCanvas) {
+  chartIrrBar = new Chart(irrCanvas, {
+    type: 'bar',
+    data: {
+      labels: ['PV DURAN', 'PV FP4'],
+      datasets: [
+        {
+          label: 'Irradiación Real (kWh/m²)',
+          data: [0, 0],
+          backgroundColor: [
+            'rgba(245,158,11,0.78)',
+            'rgba(74,222,128,0.78)'
+          ],
+          borderColor: [
+            '#f59e0b',
+            '#4ade80'
+          ],
+          borderWidth: 1.5,
+          borderRadius: 8
+        },
+        {
+          label: 'Irradiación Contractual (kWh/m²)',
+          data: [0, 0],
+          backgroundColor: [
+            'rgba(245,158,11,0.18)',
+            'rgba(74,222,128,0.18)'
+          ],
+          borderColor: [
+            '#f59e0b',
+            '#4ade80'
+          ],
+          borderWidth: 2,
+          borderRadius: 8
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: {
+          grid: { display: false }
+        },
+        y: {
+          grid: { color: 'rgba(30,92,58,0.35)' },
+          ticks: {
+            callback: v => v.toLocaleString('es-ES') + ' kWh/m²'
+          }
+        }
+      },
+      plugins: {
+        tooltip: {
+          backgroundColor: '#0f2d20',
+          borderColor: '#1e5c3a',
+          borderWidth: 1,
+          titleColor: '#e8f5e9',
+          bodyColor: '#7db99a',
+          padding: 11,
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kWh/m²`
+          }
+        },
+        legend: {
+          labels: {
+            usePointStyle: true,
+            pointStyle: 'circle',
+            padding: 16,
+            color: '#7db99a'
+          }
+        }
+      }
+    }
+  });
+}
+
+
+// ─── 7. YTD FP4 ───
+chartYTD_FP4 = new Chart(document.getElementById('chartYTD_FP4'), {
+  type: 'bar',
+  data: {
+    labels: mesesFP4,
+    datasets: [
+      { label: 'Real (kWh)',        data: realFP4, backgroundColor: 'rgba(74,222,128,0.78)', borderRadius:6, borderSkipped:false, order:2 },
+      { label: 'Contractual (kWh)', data: comFP4,  type:'line', borderColor:'#a3e635', borderWidth:2.5, pointRadius:5, pointHoverRadius:8, backgroundColor:'rgba(163,230,53,0.1)', fill:false, tension:0.3, order:1 }
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    interaction: { mode:'index', intersect:false },
+    scales: {
+      x: { grid:{ display:false } },
+      y: { grid:{ color:'rgba(30,92,58,0.35)' }, ticks:{ callback: v => (v/1000).toFixed(0)+'k' } }
+    },
+    plugins: {
+      tooltip: {
+        backgroundColor:'#0f2d20', borderColor:'#1e5c3a', borderWidth:1, titleColor:'#e8f5e9', bodyColor:'#7db99a', padding:11,
+        callbacks: { label: ctx => ` ${ctx.dataset.label}: ${(ctx.parsed.y||0).toLocaleString('es-ES')} kWh` }
+      },
+      legend: { labels:{ usePointStyle:true, pointStyle:'circle', padding:16, color:'#7db99a' } }
+    }
+  }
+});
+
+// ─── 8. YTD CAUCEDO ───
+chartYTD_CAU = new Chart(document.getElementById('chartYTD_CAU'), {
+  type: 'bar',
+  data: {
+    labels: mesesCau,
+    datasets: [
+      { label: 'Real (kWh)',        data: realCau, backgroundColor: 'rgba(56,189,248,0.78)', borderRadius:5, borderSkipped:false, order:2 },
+      { label: 'Contractual (kWh)', data: comCau,  type:'line', borderColor:'#a3e635', borderWidth:2.5, pointRadius:4, pointHoverRadius:7, backgroundColor:'rgba(163,230,53,0.1)', fill:false, tension:0.3, order:1 }
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    interaction: { mode:'index', intersect:false },
+    scales: {
+      x: { grid:{ display:false }, ticks:{ font:{size:10} } },
+      y: { grid:{ color:'rgba(30,92,58,0.35)' }, ticks:{ callback: v => (v/1000).toFixed(0)+'k' } }
+    },
+    plugins: {
+      tooltip: {
+        backgroundColor:'#0f2d20', borderColor:'#1e5c3a', borderWidth:1, titleColor:'#e8f5e9', bodyColor:'#7db99a', padding:11,
+        callbacks: { label: ctx => ` ${ctx.dataset.label}: ${(ctx.parsed.y||0).toLocaleString('es-ES')} kWh` }
+      },
+      legend: { labels:{ usePointStyle:true, pointStyle:'circle', padding:12, color:'#7db99a', font:{size:11} } }
+    }
+  }
+});
+
+// ─── 9. YTD DURAN ───
+chartYTD_DUR = new Chart(document.getElementById('chartYTD_DUR'), {
+  type: 'bar',
+  data: {
+    labels: mesesDur,
+    datasets: [
+      { label: 'Real (kWh)',        data: realDur, backgroundColor: 'rgba(245,158,11,0.78)', borderRadius:5, borderSkipped:false, order:2 },
+      { label: 'Contractual (kWh)', data: comDur,  type:'line', borderColor:'#a3e635', borderWidth:2.5, pointRadius:4, pointHoverRadius:7, backgroundColor:'rgba(163,230,53,0.1)', fill:false, tension:0.3, order:1 }
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    interaction: { mode:'index', intersect:false },
+    scales: {
+      x: { grid:{ display:false }, ticks:{ font:{size:10} } },
+      y: { grid:{ color:'rgba(30,92,58,0.35)' }, ticks:{ callback: v => (v/1000).toFixed(0)+'k' } }
+    },
+    plugins: {
+      tooltip: {
+        backgroundColor:'#0f2d20', borderColor:'#1e5c3a', borderWidth:1, titleColor:'#e8f5e9', bodyColor:'#7db99a', padding:11,
+        callbacks: { label: ctx => ` ${ctx.dataset.label}: ${(ctx.parsed.y||0).toLocaleString('es-ES')} kWh` }
+      },
+      legend: { labels:{ usePointStyle:true, pointStyle:'circle', padding:12, color:'#7db99a', font:{size:11} } }
+    }
+  }
+});
+
+// ─── 10. DIF % LINE ───
+chartDifPct = new Chart(document.getElementById('chartDifPct'), {
+  type: 'line',
+  data: {
+    labels: mesesFP4,
+    datasets: [
+      { label: 'PV DURAN (%)',   data: difPctDurFull, borderColor:'#f59e0b', backgroundColor:'rgba(245,158,11,0.06)', tension:0.3, pointRadius:5, pointHoverRadius:8, fill:true, borderDash:[5,3], spanGaps:false },
+      { label: 'PV CAUCEDO (%)', data: difPctCau,     borderColor:'#38bdf8', backgroundColor:'rgba(56,189,248,0.06)', tension:0.3, pointRadius:5, pointHoverRadius:8, fill:true },
+      { label: 'PV FP4 (%)',     data: difPctFP4,     borderColor:'#4ade80', backgroundColor:'rgba(74,222,128,0.06)', tension:0.3, pointRadius:5, pointHoverRadius:8, fill:true }
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    interaction: { mode:'index', intersect:false },
+    scales: {
+      x: { grid:{ color:'rgba(30,92,58,0.35)' } },
+      y: {
+        grid:{ color:'rgba(30,92,58,0.35)' },
+        ticks:{ callback: v => Number(v).toFixed(2) + '%' },
+        afterDataLimits(axis) { axis.min = Math.min(axis.min,-5); axis.max = Math.max(axis.max,5); }
+      }
+    },
+    plugins: {
+      annotation: {},
+      tooltip: {
+        backgroundColor:'#0f2d20', borderColor:'#1e5c3a', borderWidth:1, titleColor:'#e8f5e9', bodyColor:'#7db99a', padding:11,
+        callbacks: {
+          label: ctx => ctx.parsed.y!=null ? ` ${ctx.dataset.label}: ${ctx.parsed.y>0?'+':''}${Number(ctx.parsed.y).toFixed(2)}%` : ` ${ctx.dataset.label}: — (sin datos)`
+        }
+      },
+      legend: { labels:{ usePointStyle:true, pointStyle:'circle', padding:16, color:'#7db99a' } }
+    }
+  }
+});
+
+// MODIFICADOOOOO
+function updateAlarmTable() {
+
+  const m = getCurrentMonthData();
+  const tbody = document.getElementById('alarmTableBody');
+  const summary = getAlarmSummary();
+
+  document.getElementById('alarmTotalKwh').textContent =
+    summary.totalKwh.toLocaleString('es-ES', { maximumFractionDigits: 1 });
+
+  document.getElementById('alarmEvents').textContent =
+    summary.events.toLocaleString('es-ES');
+
+  document.getElementById('alarmHours').textContent =
+    summary.totalHours.toLocaleString('es-ES', { maximumFractionDigits: 1 });
+
+  chartAlarmLoss.data.datasets[0].data = [
+    summary.byPlant['PV DURAN'] || 0,
+    summary.byPlant['PV CAUCEDO'] || 0,
+    summary.byPlant['PV FP4'] || 0
+  ];
+  chartAlarmLoss.update();
+
+  tbody.innerHTML = '';
+
+  if (!m.alarms.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="4" style="text-align:center; color:var(--muted); padding:14px;">
+          Sin alarmas registradas para este mes
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  m.alarms.forEach(alarm => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${alarm.plant}</td>
+      <td>${alarm.code}</td>
+      <td>${alarm.hours}</td>
+      <td>${alarm.lossKwh.toLocaleString('es-ES', { maximumFractionDigits: 1 })}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function buildYtdChartData() {
+  const result = {};
+
+  const summaryMonths = Object.keys(ytdMonthlySummary || {}).sort(compareMonthKeys);
+  const currentMonths = Object.keys(monthlyData || {}).sort(compareMonthKeys);
+  const allMonths = [...new Set([...summaryMonths, ...currentMonths])].sort(compareMonthKeys);
+
+  const now = new Date();
+  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+
+  allMonths.forEach(monthKey => {
+    result[monthKey] = {};
+
+    Object.keys(YTD_PLANTS).forEach(plantKey => {
+      let com = 0;
+      let real = 0;
+
+      const hasMonthlyData =
+        monthlyData?.[monthKey]?.contractual?.[plantKey] ||
+        monthlyData?.[monthKey]?.generation?.[plantKey];
+
+      const hasSummaryData = ytdMonthlySummary?.[monthKey]?.[plantKey];
+
+      // Para el mes actual, manda monthlyData
+      if (monthKey === currentMonthKey && hasMonthlyData) {
+        com = ytdSum(monthlyData[monthKey]?.contractual?.[plantKey] || []);
+        real = ytdSum(monthlyData[monthKey]?.generation?.[plantKey] || []);
+      }
+      // Para meses cerrados, usa el resumen
+      else if (hasSummaryData) {
+        com = Number(ytdMonthlySummary[monthKey][plantKey].com || 0);
+        real = Number(ytdMonthlySummary[monthKey][plantKey].real || 0);
+      }
+      // Respaldo
+      else if (hasMonthlyData) {
+        com = ytdSum(monthlyData[monthKey]?.contractual?.[plantKey] || []);
+        real = ytdSum(monthlyData[monthKey]?.generation?.[plantKey] || []);
+      }
+      if (monthKey === currentMonthKey && plantKey === 'caucedo') {
+        console.log('YTD actual desde monthlyData:', monthKey, plantKey, com, real);
+      }
+      result[monthKey][plantKey] = {
+        com,
+        real,
+        diff: real - com,
+        diffPct: com > 0 ? ((real - com) / com) * 100 : 0
+      };
+    });
+  });
+
+  return result;
+}
+
+function updateYtdCharts() {
+  const ytd = buildYtdChartData();
+
+  if (chartYTD_FP4) {
+    chartYTD_FP4.data.labels = ytd.fp4.labels;
+    chartYTD_FP4.data.datasets[0].data = ytd.fp4.com;
+    chartYTD_FP4.data.datasets[1].data = ytd.fp4.real;
+    chartYTD_FP4.update();
+  }
+
+  if (chartYTD_CAU) {
+    chartYTD_CAU.data.labels = ytd.cau.labels;
+    chartYTD_CAU.data.datasets[0].data = ytd.cau.com;
+    chartYTD_CAU.data.datasets[1].data = ytd.cau.real;
+    chartYTD_CAU.update();
+  }
+
+  if (chartYTD_DUR) {
+    chartYTD_DUR.data.labels = ytd.dur.labels;
+    chartYTD_DUR.data.datasets[0].data = ytd.dur.com;
+    chartYTD_DUR.data.datasets[1].data = ytd.dur.real;
+    chartYTD_DUR.update();
+  }
+
+  if (chartDifPct) {
+    chartDifPct.data.labels = ytd.diffPct.labels;
+    chartDifPct.data.datasets[0].data = ytd.diffPct.duran;
+    chartDifPct.data.datasets[1].data = ytd.diffPct.caucedo;
+    chartDifPct.data.datasets[2].data = ytd.diffPct.fp4;
+    chartDifPct.update();
+  }
+}
+
+async function loadDashboardData() {
+  try {
+    const response = await fetch(`./dashboard-data.json?t=${Date.now()}`, {
+      cache: 'no-store'
+    });
+
+    if (!response.ok) {
+      throw new Error(`No se pudo cargar dashboard-data.json (${response.status})`);
+    }
+
+    const data = await response.json();
+
+    monthlyData = data.monthlyData || {};
+    ytdMonthlySummary = data.ytdMonthlySummary || {};
+    mergeLegacyYtdIntoSummary();
+    irradiationData = data.irradiation || {};
+    alarmsData = data.alarms || [];
+    metaData = data.meta || {};
+
+    Object.keys(monthlyData).forEach(monthKey => {
+      const irrMonth = irradiationData[monthKey] || {};
+
+      monthlyData[monthKey].capacity = {
+        duran: Number(metaData?.duran?.capacity_kwp || 0),
+        caucedo: Number(metaData?.caucedo?.capacity_kwp || 0),
+        fp4: Number(metaData?.fp4?.capacity_kwp || 0)
+      };
+
+      monthlyData[monthKey].irradiation = {
+        duran: {
+          real: Number(irrMonth.duran_real || 0),
+          contractual: Number(irrMonth.duran_contractual || 0)
+        },
+        fp4: {
+          real: Number(irrMonth.fp4_real || 0),
+          contractual: Number(irrMonth.fp4_contractual || 0)
+        }
+      };
+
+      monthlyData[monthKey].alarms = alarmsData
+        .filter(a => a.month_key === monthKey)
+        .map(a => ({
+          plant: a.plant,
+          code: a.code,
+          hours: Number(a.hours || 0),
+          lossKwh: Number(a.loss_kwh || 0)
+        }));
+    });
+
+    initMonthSelector();
+    initDashboard();
+
+  } catch (error) {
+    console.error('Error cargando dashboard:', error);
+    alert('No se pudo cargar dashboard-data.json. Revisa que el archivo exista en la misma carpeta que index.html');
+  }
+}
+
+function initMonthSelector() {
+  const selector = document.getElementById('monthSelector');
+  if (!selector) return;
+
+  const months = Object.keys(monthlyData || {}).sort();
+  const previousMonth = selector.value || selectedMonth;
+
+  selector.innerHTML = '';
+
+  months.forEach(month => {
+    const opt = document.createElement('option');
+    opt.value = month;
+    opt.textContent = monthLabelFromKey(month, month === months[months.length - 1]);
+    selector.appendChild(opt);
+  });
+
+  if (months.length) {
+    if (previousMonth && months.includes(previousMonth)) {
+      selectedMonth = previousMonth;
+    } else {
+      selectedMonth = months[months.length - 1];
+    }
+    selector.value = selectedMonth;
+  }
+
+  selector.onchange = handleMonthChange;
+}
+
+
+function initDashboard() {
+  const selector = document.getElementById('monthSelector');
+  if (selector) {
+    selectedMonth = selector.value;
+  }
+  handleMonthChange();
+  renderYtdDynamicSection();
+}
+
+function getComplianceBadge(pct) {
+  if (pct >= 100) {
+    return { text: 'SOBRE META', className: 'up', color: 'var(--green)' };
+  }
+  if (pct < 98) {
+    return { text: 'BAJO META', className: 'down', color: 'var(--red)' };
+  }
+  return { text: 'CERCANO', className: 'neutral', color: 'var(--yellow)' };
+}
+
+
+function handleMonthChange() {
+  selectedMonth = document.getElementById('monthSelector').value;
+  console.log('selectedMonth:', selectedMonth);
+  console.log('monthlyData[selectedMonth]:', monthlyData[selectedMonth]);
+
+  const m = getCurrentMonthData();
+  const monthLabel = monthLabelFromKey(selectedMonth, isPartialMonth(selectedMonth));
+  document.getElementById('monthlySectionTitle').textContent =
+    `📈 Generación Diaria — ${monthLabel}`;
+
+  document.getElementById('dailyChartSubtitle').textContent =
+    `${m.days.length} días · ${monthLabel}`;
+
+  document.getElementById('accumChartSubtitle').textContent =
+  `Suma acumulada día a día · ${monthLabel}`;
+
+  document.getElementById('pieChartSubtitle').textContent =
+  `% del total generado · ${monthLabel}`;
+
+  document.getElementById('alarmSectionTitle').textContent =
+    `🚨 Pérdidas de Energía por Alarmas — ${monthLabel}`;
+  // agregado
+  document.getElementById('alarmChartSubtitle').textContent =
+    `Alarmas detectadas en SolisCloud · ${monthLabel}`;
+
+  document.getElementById('contractSectionTitle').textContent =
+    `🎯 CUMPLIMIENTO CONTRACTUAL — ${monthLabel.toUpperCase()}`;
+
+  document.getElementById('contractBarSubtitle').textContent =
+    `Comparación por planta · ${monthLabel}`;
+
+  //fin de agregado
+
+  chartDiario.data.labels = m.days;
+  chartDiario.data.datasets[0].data = m.generation.duran;
+  chartDiario.data.datasets[1].data = m.generation.caucedo;
+  chartDiario.data.datasets[2].data = m.generation.fp4;
+  chartDiario.update();
+
+  chartAcumulado.data.labels = m.days;
+  chartAcumulado.data.datasets[0].data = cumsum(m.generation.duran);
+  chartAcumulado.data.datasets[1].data = cumsum(m.generation.caucedo);
+  chartAcumulado.data.datasets[2].data = cumsum(m.generation.fp4);
+  chartAcumulado.update();
+
+  //agregado
+  chartPie.data.datasets[0].data = [
+    sum(m.generation.duran),
+    sum(m.generation.caucedo),
+    sum(m.generation.fp4)
+  ];
+  chartPie.update();
+  //fin agregado
+  // AGREGADO 
+  const c = getContractualData();
+  chartContractual.data.datasets[0].data = [
+    c.real.duran,
+    c.real.caucedo,
+    c.real.fp4
+  ];
+
+  chartContractual.data.datasets[1].data = [
+    c.contract.duran,
+    c.contract.caucedo,
+    c.contract.fp4
+  ];
+
+  chartContractual.update();
+  renderContractGauges();
+  // FIN DE AGREGADO
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  const firstBtn = document.querySelector('.filter-btn');
+  if (firstBtn) firstBtn.classList.add('active');
+
+  chartDiario.data.datasets.forEach(ds => ds.hidden = false);
+  chartDiario.update();
+
+  updateHeaderAndKPIs();
+  renderPlantSummaryTable();
+  renderIrrSummaryBox();
+  updateAlarmTable();
+  updateIrradiationChart();
+  renderYtdDynamicSection();
+  updateYtdCharts();
+}
+
+function updateIrradiationChart() {
+  const m = getCurrentMonthData();
+
+  if (!chartIrrBar) return;
+
+  const durReal = m.irradiation?.duran?.real ?? 0;
+  const durContract = m.irradiation?.duran?.contractual ?? 0;
+
+  const fp4Real = m.irradiation?.fp4?.real ?? 0;
+  const fp4Contract = m.irradiation?.fp4?.contractual ?? 0;
+
+  chartIrrBar.data.labels = ['PV DURAN', 'PV FP4'];
+
+  chartIrrBar.data.datasets[0].data = [durReal, fp4Real];
+  chartIrrBar.data.datasets[1].data = [durContract, fp4Contract];
+
+  chartIrrBar.update();
+}
+
+// ─── FILTRO PLANTAS ───
+function filterChart(plant, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const vis = { all:[true,true,true], duran:[true,false,false], caucedo:[false,true,false], fp4:[false,false,true] };
+  const v = vis[plant];
+  chartDiario.data.datasets.forEach((ds, i) => { ds.hidden = !v[i]; });
+  chartDiario.update();
+}
+loadDashboardData();
+</script>
+</body>
+</html>
