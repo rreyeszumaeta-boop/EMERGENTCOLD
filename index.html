@@ -1496,22 +1496,21 @@ function getAlarmSummary() {
   };
 }
 /*AQUI ACABA LA MODIFICACION*/
-/*
+
 // ─── DATOS YTD ───
-const mesesCau = ['May-25','Jun-25','Jul-25','Ago-25','Sep-25','Oct-25','Nov-25','Dic-25','Ene-26','Feb-26','Mar-26*'];
-const comCau   = [81601,77875,80526,77836,72736,66810,57820,56658,55840,58427.6,23738.7];
-const realCau  = [63580.7,63614.4,59415.6,79217.8,64967.3,58138.6,50501.1,52357.5,55595.1,56006.1,20411];
+const mesesCau = [];
+const comCau   = [];
+const realCau  = [];
 
-const mesesFP4 = ['May-25','Jun-25','Jul-25','Ago-25','Sep-25','Oct-25','Nov-25','Dic-25','Ene-26','Feb-26','Mar-26*'];
-const comFP4   = [148500,113097,137055,186523,281093,377798,464900,520964,481332,377628.44,107006];
-const realFP4  = [162702,115868,120919,164676,243699,406902.8,379947,466476,446784.3,373186.5,104613];
+const mesesFP4 = [];
+const comFP4   = [];
+const realFP4  = [];
 
-const mesesDur = ['Ago-25','Sep-25','Oct-25','Nov-25','Dic-25','Ene-26','Feb-26','Mar-26*'];
-const comDur   = [86113,81164,80174,78194,82153,73640,70110,27019];
-const realDur  = [77538.7,76111.6,79164.7,62236.8,75440,70884.1,74787.1,24915];
+const mesesDur = [];
+const comDur   = [];
+const realDur  = [];
 
 ////
-*/
 function normalizeLegacyMonth(label) {
   const clean = String(label).replace('*', '').trim();
   const [mon, yy] = clean.split('-');
@@ -1565,9 +1564,9 @@ function mergeLegacyYtdIntoSummary() {
 }
 
 // ─── DIFERENCIAS % ───
-const difPctCau = mesesCau.map((m,i) => +((realCau[i]/comCau[i]*100 - 100).toFixed(2)));
-const difPctFP4 = mesesFP4.map((m,i) => +((realFP4[i]/comFP4[i]*100 - 100).toFixed(2)));
-const difPctDurFull = [null,null,null,...mesesDur.map((m,i) => +((realDur[i]/comDur[i]*100 - 100).toFixed(2)))];
+const difPctCau = [];
+const difPctFP4 = [];
+const difPctDurFull = [];
 
 // ─── CHART DEFAULTS ───
 Chart.defaults.color = '#4b5563';
@@ -1918,10 +1917,10 @@ if (irrCanvas) {
 chartYTD_FP4 = new Chart(document.getElementById('chartYTD_FP4'), {
   type: 'bar',
   data: {
-    labels: mesesFP4,
+    labels: [],
     datasets: [
-      { label: 'Real (kWh)',        data: realFP4, backgroundColor: 'rgba(74,222,128,0.78)', borderRadius:6, borderSkipped:false, order:2 },
-      { label: 'Contractual (kWh)', data: comFP4,  type:'line', borderColor:'#a3e635', borderWidth:2.5, pointRadius:5, pointHoverRadius:8, backgroundColor:'rgba(163,230,53,0.1)', fill:false, tension:0.3, order:1 }
+      { label: 'Real (kWh)', data: [], backgroundColor: 'rgba(74,222,128,0.78)', borderRadius:6, borderSkipped:false, order:2 },
+      { label: 'Contractual (kWh)', data: [], type:'line', borderColor:'#a3e635', borderWidth:2.5, pointRadius:5, pointHoverRadius:8, backgroundColor:'rgba(163,230,53,0.1)', fill:false, tension:0.3, order:1 }
     ]
   },
   options: {
@@ -1945,10 +1944,10 @@ chartYTD_FP4 = new Chart(document.getElementById('chartYTD_FP4'), {
 chartYTD_CAU = new Chart(document.getElementById('chartYTD_CAU'), {
   type: 'bar',
   data: {
-    labels: mesesCau,
+    labels: [],
     datasets: [
-      { label: 'Real (kWh)',        data: realCau, backgroundColor: 'rgba(56,189,248,0.78)', borderRadius:5, borderSkipped:false, order:2 },
-      { label: 'Contractual (kWh)', data: comCau,  type:'line', borderColor:'#a3e635', borderWidth:2.5, pointRadius:4, pointHoverRadius:7, backgroundColor:'rgba(163,230,53,0.1)', fill:false, tension:0.3, order:1 }
+      { label: 'Real (kWh)', data: [], backgroundColor: 'rgba(56,189,248,0.78)', borderRadius:5, borderSkipped:false, order:2 },
+      { label: 'Contractual (kWh)', data: [], type:'line', borderColor:'#a3e635', borderWidth:2.5, pointRadius:4, pointHoverRadius:7, backgroundColor:'rgba(163,230,53,0.1)', fill:false, tension:0.3, order:1 }
     ]
   },
   options: {
@@ -1972,10 +1971,10 @@ chartYTD_CAU = new Chart(document.getElementById('chartYTD_CAU'), {
 chartYTD_DUR = new Chart(document.getElementById('chartYTD_DUR'), {
   type: 'bar',
   data: {
-    labels: mesesDur,
+    labels: [],
     datasets: [
-      { label: 'Real (kWh)',        data: realDur, backgroundColor: 'rgba(245,158,11,0.78)', borderRadius:5, borderSkipped:false, order:2 },
-      { label: 'Contractual (kWh)', data: comDur,  type:'line', borderColor:'#a3e635', borderWidth:2.5, pointRadius:4, pointHoverRadius:7, backgroundColor:'rgba(163,230,53,0.1)', fill:false, tension:0.3, order:1 }
+      { label: 'Real (kWh)', data: [], backgroundColor: 'rgba(245,158,11,0.78)', borderRadius:5, borderSkipped:false, order:2 },
+      { label: 'Contractual (kWh)', data: [], type:'line', borderColor:'#a3e635', borderWidth:2.5, pointRadius:4, pointHoverRadius:7, backgroundColor:'rgba(163,230,53,0.1)', fill:false, tension:0.3, order:1 }
     ]
   },
   options: {
@@ -2030,6 +2029,43 @@ chartDifPct = new Chart(document.getElementById('chartDifPct'), {
   }
 });
 
+function updateYTDChartsFromJson() {
+  const monthKeys = Object.keys(ytdMonthlySummary || {}).sort(compareMonthKeys);
+  const labels = monthKeys.map((m, i) => monthLabelFromKey(m, i === monthKeys.length - 1));
+
+  const cauReal = monthKeys.map(m => Number(ytdMonthlySummary[m]?.caucedo?.real || 0));
+  const cauCom  = monthKeys.map(m => Number(ytdMonthlySummary[m]?.caucedo?.com || 0));
+
+  const fp4Real = monthKeys.map(m => Number(ytdMonthlySummary[m]?.fp4?.real || 0));
+  const fp4Com  = monthKeys.map(m => Number(ytdMonthlySummary[m]?.fp4?.com || 0));
+
+  const durReal = monthKeys.map(m => Number(ytdMonthlySummary[m]?.duran?.real || 0));
+  const durCom  = monthKeys.map(m => Number(ytdMonthlySummary[m]?.duran?.com || 0));
+
+  if (chartYTD_CAU) {
+    chartYTD_CAU.data.labels = labels;
+    chartYTD_CAU.data.datasets[0].data = cauReal;
+    chartYTD_CAU.data.datasets[1].data = cauCom;
+    chartYTD_CAU.update();
+  }
+
+  if (chartYTD_FP4) {
+    chartYTD_FP4.data.labels = labels;
+    chartYTD_FP4.data.datasets[0].data = fp4Real;
+    chartYTD_FP4.data.datasets[1].data = fp4Com;
+    chartYTD_FP4.update();
+  }
+
+  if (chartYTD_DUR) {
+    chartYTD_DUR.data.labels = labels;
+    chartYTD_DUR.data.datasets[0].data = durReal;
+    chartYTD_DUR.data.datasets[1].data = durCom;
+    chartYTD_DUR.update();
+  }
+}
+
+
+  
 // MODIFICADOOOOO
 function updateAlarmTable() {
 
@@ -2222,6 +2258,7 @@ async function loadDashboardData() {
 
     initMonthSelector();
     initDashboard();
+    updateYTDChartsFromJson();
 
     console.log('Dashboard inicializado correctamente.');
 
