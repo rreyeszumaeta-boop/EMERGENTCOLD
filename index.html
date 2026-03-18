@@ -2170,52 +2170,52 @@ function buildYtdChartData() {
 function updateYtdCharts() {
   const ytd = buildYtdChartData();
 
-  if (chartYTD_FP4) {
-    chartYTD_FP4.data.labels = ytd.fp4.labels;
-    chartYTD_FP4.data.datasets[0].data = ytd.fp4.com;
-    chartYTD_FP4.data.datasets[1].data = ytd.fp4.real;
+  if (!ytd) {
+    console.warn('updateYtdCharts: buildYtdChartData devolvió vacío');
+    return;
+  }
+
+  if (chartYTD_FP4 && chartYTD_FP4.data && ytd.fp4) {
+    chartYTD_FP4.data.labels = ytd.fp4.labels || [];
+    if (chartYTD_FP4.data.datasets?.[0]) chartYTD_FP4.data.datasets[0].data = ytd.fp4.com || [];
+    if (chartYTD_FP4.data.datasets?.[1]) chartYTD_FP4.data.datasets[1].data = ytd.fp4.real || [];
     chartYTD_FP4.update();
   }
 
-  if (chartYTD_CAU) {
-    chartYTD_CAU.data.labels = ytd.cau.labels;
-    chartYTD_CAU.data.datasets[0].data = ytd.cau.com;
-    chartYTD_CAU.data.datasets[1].data = ytd.cau.real;
+  if (chartYTD_CAU && chartYTD_CAU.data && ytd.cau) {
+    chartYTD_CAU.data.labels = ytd.cau.labels || [];
+    if (chartYTD_CAU.data.datasets?.[0]) chartYTD_CAU.data.datasets[0].data = ytd.cau.com || [];
+    if (chartYTD_CAU.data.datasets?.[1]) chartYTD_CAU.data.datasets[1].data = ytd.cau.real || [];
     chartYTD_CAU.update();
   }
 
-  if (chartYTD_DUR) {
-    chartYTD_DUR.data.labels = ytd.dur.labels;
-    chartYTD_DUR.data.datasets[0].data = ytd.dur.com;
-    chartYTD_DUR.data.datasets[1].data = ytd.dur.real;
+  if (chartYTD_DUR && chartYTD_DUR.data && ytd.dur) {
+    chartYTD_DUR.data.labels = ytd.dur.labels || [];
+    if (chartYTD_DUR.data.datasets?.[0]) chartYTD_DUR.data.datasets[0].data = ytd.dur.com || [];
+    if (chartYTD_DUR.data.datasets?.[1]) chartYTD_DUR.data.datasets[1].data = ytd.dur.real || [];
     chartYTD_DUR.update();
   }
 
-  if (chartDifPct) {
-    chartDifPct.data.labels = ytd.diffPct.labels;
-    chartDifPct.data.datasets[0].data = ytd.diffPct.duran;
-    chartDifPct.data.datasets[1].data = ytd.diffPct.caucedo;
-    chartDifPct.data.datasets[2].data = ytd.diffPct.fp4;
+  if (chartDifPct && chartDifPct.data && ytd.diffPct) {
+    chartDifPct.data.labels = ytd.diffPct.labels || [];
+    if (chartDifPct.data.datasets?.[0]) chartDifPct.data.datasets[0].data = ytd.diffPct.duran || [];
+    if (chartDifPct.data.datasets?.[1]) chartDifPct.data.datasets[1].data = ytd.diffPct.caucedo || [];
+    if (chartDifPct.data.datasets?.[2]) chartDifPct.data.datasets[2].data = ytd.diffPct.fp4 || [];
     chartDifPct.update();
   }
 }
-
+  
 async function loadDashboardData() {
   try {
-    console.log('Iniciando carga de dashboard-data.json...');
-
     const response = await fetch(`./dashboard-data.json?t=${Date.now()}`, {
       cache: 'no-store'
     });
-
-    console.log('Status fetch JSON:', response.status, response.statusText);
 
     if (!response.ok) {
       throw new Error(`No se pudo cargar dashboard-data.json (${response.status})`);
     }
 
     const data = await response.json();
-    console.log('JSON cargado correctamente:', data);
 
     monthlyData = data.monthlyData || {};
     ytdMonthlySummary = data.ytdMonthlySummary || {};
@@ -2223,8 +2223,6 @@ async function loadDashboardData() {
     irradiationData = data.irradiation || {};
     alarmsData = data.alarms || [];
     metaData = data.meta || {};
-
-    console.log('Meses detectados:', Object.keys(monthlyData));
 
     Object.keys(monthlyData).forEach(monthKey => {
       const irrMonth = irradiationData[monthKey] || {};
@@ -2257,14 +2255,16 @@ async function loadDashboardData() {
     });
 
     initMonthSelector();
-    initDashboard();
-    updateYTDChartsFromJson();
 
-    console.log('Dashboard inicializado correctamente.');
+    try {
+      initDashboard();
+    } catch (renderError) {
+      console.error('Error de render del dashboard:', renderError);
+    }
 
   } catch (error) {
-    console.error('Error cargando dashboard:', error);
-    alert('Error cargando dashboard-data.json. Abre F12 > Console y revisa el detalle.');
+    console.error('Error real cargando dashboard-data.json:', error);
+    alert('No se pudo cargar dashboard-data.json');
   }
 }
   
